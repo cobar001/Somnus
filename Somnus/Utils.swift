@@ -45,7 +45,7 @@ class SomnusUtils {
 		let minute: Int = components.minute!
 		var suffix: String = "AM"
 		if hour > 11 { suffix = "PM"; hour -= 12; }
-		return "\(hour):\(minute) \(suffix)"
+		return String(format: "%d:%02d %@", hour, minute, suffix)
 	}
 }
 

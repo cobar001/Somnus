@@ -7,15 +7,31 @@
 //
 
 import UIKit
+import MediaPlayer
 
-class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
+class SomnusViewController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate,
+UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
 		// Quick set up
+		registerDelegates()
+		updatePlaylists()
 		setUpNav()
 		setUpUI()
+//		let myPlaylistQuery = MPMediaQuery.playlists()
+//		let playlists = myPlaylistQuery.collections
+//		for playlist in playlists! {
+//			print(playlist.value(forProperty: MPMediaPlaylistPropertyName)!)
+//			let songs = playlist.items
+//			for song in songs {
+//				let songTitle = song.value(forProperty: MPMediaItemPropertyTitle)
+//				print("\t\t", songTitle!)
+//			}
+//		}
+//		mMPMediaPlayer.setQueue(with: MPMediaQuery.songs())
+//		mMPMediaPlayer.play()
     }
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -38,6 +54,13 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		self.navigationController?.isNavigationBarHidden = true
 	}
 	
+	fileprivate func registerDelegates() {
+		mCountdownPlaylistsCollectionView.delegate = self
+		mCountdownPlaylistsCollectionView.dataSource = self
+		mAlarmPlaylistsCollectionView.delegate = self
+		mAlarmPlaylistsCollectionView.dataSource = self
+	}
+	
 	fileprivate func setUpUI() {
 		
 		// Set up Background gradient
@@ -58,7 +81,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		registerClouds()
 		startCloudMovement()
 		
-		// Moon ImageView
+		// Moon, Sun, and Somnus ImageView/Button
 		
 		view.addSubview(mMoonImageView)
 		mMoonImageView.topAnchor.constraint(
@@ -67,6 +90,26 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 			equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
 		mMoonImageView.widthAnchor.constraint(equalToConstant: 70).isActive = true
 		mMoonImageView.heightAnchor.constraint(equalToConstant: 70).isActive = true
+		
+		view.addSubview(mSunImageView)
+		mSunImageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+		mSunImageView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16).isActive = true
+		mSunImageView.widthAnchor.constraint(equalToConstant: 70).isActive = true
+		mSunImageView.heightAnchor.constraint(equalToConstant: 70).isActive = true
+		
+		view.addSubview(mStartSomnusSessionButton)
+		mStartSomnusSessionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+		mStartSomnusSessionButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
+		mStartSomnusSessionButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
+		mStartSomnusSessionButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
+		mStartSomnusSessionButton.alpha = 1.0
+		
+		view.addSubview(mStopSomnusSessionButton)
+		mStopSomnusSessionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+		mStopSomnusSessionButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
+		mStopSomnusSessionButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
+		mStopSomnusSessionButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
+		mStopSomnusSessionButton.alpha = 0.0
 		
 		// Middle line temporary reference  UIView
 		
@@ -78,17 +121,29 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		mMiddleLineView.widthAnchor.constraint(equalToConstant: 300).isActive = true
 		mMiddleLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
 		
+		// Set Up Container UIView
+		
+		view.addSubview(mSetUpContainerView)
+		mSetUpContainerView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mSetUpContainerView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mSetUpContainerView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
+		mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.75).isActive = true
+		mSetUpContainerView.alpha = 1.0
+		
 		// Countdown Label and DatePicker StackView and Gestures
 		
-		view.addSubview(mCountdownTimerStackView)
-		mCountdownTimerStackView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-		mCountdownTimerStackView.centerYAnchor.constraint(
-			equalTo: view.safeAreaLayoutGuide.topAnchor, constant: SCREENBOUNDS.height * 0.25).isActive = true
-		mCountdownTimerStackView.widthAnchor.constraint(
-			equalToConstant: SCREENBOUNDS.width * 2).isActive = true
-		mCountdownTimerStackView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-		mCountdownTimerStackView.addArrangedSubview(mTimerLabel)
-		mCountdownTimerStackView.addArrangedSubview(mCountdownDatePicker)
+		mSetUpContainerView.addSubview(mCountdownExplanationLabel)
+		mCountdownExplanationLabel.topAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
+		mCountdownExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mCountdownExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		
+		mSetUpContainerView.addSubview(mCountdownDatePicker)
+		mCountdownDatePicker.topAnchor.constraint(equalTo: mCountdownExplanationLabel.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mCountdownDatePicker.centerXAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mCountdownDatePicker.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
 		// uidatepicker bugfix
 		var countdownDateComponents: DateComponents = DateComponents()
 		countdownDateComponents.hour = 0
@@ -97,67 +152,84 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		let defaultCountdownDate: Date =
 			coutndownCalendar.date(from: countdownDateComponents) ?? Date()
 		mCountdownDatePicker.setDate(defaultCountdownDate, animated: true)
-		let tapTimerCountdownTapGestureRecgonizer: UITapGestureRecognizer =
-			UITapGestureRecognizer(target: self, action: #selector(countdownTimerTapped))
-		tapTimerCountdownTapGestureRecgonizer.numberOfTapsRequired = 2
-		tapTimerCountdownTapGestureRecgonizer.delegate = self
-		let tapDatePickerCountdownTapGestureRecgonizer: UITapGestureRecognizer =
-			UITapGestureRecognizer(target: self, action: #selector(countdownDatePickerTapped))
-		tapDatePickerCountdownTapGestureRecgonizer.numberOfTapsRequired = 2
-		tapDatePickerCountdownTapGestureRecgonizer.delegate = self
-		mTimerLabel.addGestureRecognizer(tapTimerCountdownTapGestureRecgonizer)
-		mCountdownDatePicker.addGestureRecognizer(tapDatePickerCountdownTapGestureRecgonizer)
+		mCountdownStr = kSomnusUtils.formatSeconds(
+			seconds: Double(mCountdownDatePicker.countDownDuration))
+		mCountdownTimeInterval = mCountdownDatePicker.countDownDuration
 		
 		// Countdown Controls StackView
 		
-		view.addSubview(mCountdownControlStackView)
-		mCountdownControlStackView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mCountdownControlStackView.topAnchor.constraint(equalTo: mCountdownTimerStackView.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mCountdownControlStackView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
-		mCountdownControlStackView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-		mCountdownControlStackView.addArrangedSubview(mCountdownPlaylistButton)
-		mCountdownControlStackView.addArrangedSubview(mCountdownStartStopButton)
+		mSetUpContainerView.addSubview(mCountdownPlaylistExplanationLabel)
+		mCountdownPlaylistExplanationLabel.topAnchor.constraint(equalTo: mCountdownDatePicker.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mCountdownPlaylistExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mCountdownPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		
-		// Alarm Label and DatePicker StackView and Gestures
-		
-		view.addSubview(mAlarmStackView)
-		mAlarmStackView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-		mAlarmStackView.centerYAnchor.constraint(
-			equalTo: view.safeAreaLayoutGuide.topAnchor, constant: SCREENBOUNDS.height * 0.6).isActive = true
-		mAlarmStackView.widthAnchor.constraint(
-			equalToConstant: SCREENBOUNDS.width * 2).isActive = true
-		mAlarmStackView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-		mAlarmStackView.addArrangedSubview(mAlarmLabel)
-		mAlarmStackView.addArrangedSubview(mAlarmDatePicker)
-		let tapAlarmTapGestureRecgonizer: UITapGestureRecognizer =
-			UITapGestureRecognizer(target: self, action: #selector(alarmTapped))
-		tapAlarmTapGestureRecgonizer.numberOfTapsRequired = 2
-		tapAlarmTapGestureRecgonizer.delegate = self
-		let tapDatePickerAlarmTapGestureRecgonizer: UITapGestureRecognizer =
-			UITapGestureRecognizer(target: self, action: #selector(alarmDatePickerTapped))
-		tapDatePickerAlarmTapGestureRecgonizer.numberOfTapsRequired = 2
-		tapDatePickerAlarmTapGestureRecgonizer.delegate = self
-		mAlarmLabel.addGestureRecognizer(tapAlarmTapGestureRecgonizer)
-		mAlarmDatePicker.addGestureRecognizer(tapDatePickerAlarmTapGestureRecgonizer)
+		mSetUpContainerView.addSubview(mCountdownPlaylistsCollectionView)
+		mCountdownPlaylistsCollectionView.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mCountdownPlaylistsCollectionView.topAnchor.constraint(equalTo: mCountdownPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mCountdownPlaylistsCollectionView.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		
 		// Alarm Controls StackView
 		
-		view.addSubview(mAlarmControlStackView)
-		mAlarmControlStackView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mAlarmControlStackView.topAnchor.constraint(equalTo: mAlarmStackView.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mAlarmControlStackView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
-		mAlarmControlStackView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-		mAlarmControlStackView.addArrangedSubview(mAlarmPlaylistButton)
-		mAlarmControlStackView.addArrangedSubview(mAlarmEnableDisableButton)
+		mSetUpContainerView.addSubview(mAlarmPlaylistsCollectionView)
+		mAlarmPlaylistsCollectionView.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mAlarmPlaylistsCollectionView.bottomAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mAlarmPlaylistsCollectionView.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		
-		// Sun Image View
+		mSetUpContainerView.addSubview(mAlarmPlaylistExplanationLabel)
+		mAlarmPlaylistExplanationLabel.bottomAnchor.constraint(equalTo: mAlarmPlaylistsCollectionView.safeAreaLayoutGuide.topAnchor).isActive = true
+		mAlarmPlaylistExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mAlarmPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		
-		view.addSubview(mSunImageView)
-		mSunImageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
-		mSunImageView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16).isActive = true
-		mSunImageView.widthAnchor.constraint(equalToConstant: 70).isActive = true
-		mSunImageView.heightAnchor.constraint(equalToConstant: 70).isActive = true
+		// Alarm Label and DatePicker StackView and Gestures
+		
+		mSetUpContainerView.addSubview(mAlarmDatePicker)
+		mAlarmDatePicker.bottomAnchor.constraint(equalTo: mAlarmPlaylistExplanationLabel.safeAreaLayoutGuide.topAnchor).isActive = true
+		mAlarmDatePicker.centerXAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mAlarmDatePicker.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		mAlarmStr = kSomnusUtils.formatDate(date: mAlarmDatePicker.date, calendar: mAlarmDatePicker.calendar)
+		mAlarmDate = mAlarmDatePicker.date
+		mAlarmCalendar = mAlarmDatePicker.calendar
+		
+		mSetUpContainerView.addSubview(mAlarmExplanationLabel)
+		mAlarmExplanationLabel.bottomAnchor.constraint(equalTo: mAlarmDatePicker.safeAreaLayoutGuide.topAnchor).isActive = true
+		mAlarmExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mAlarmExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
 
+		// Somnus Session Container UIView
+		
+		view.addSubview(mSomnusSessionContainerView)
+		mSomnusSessionContainerView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mSomnusSessionContainerView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mSomnusSessionContainerView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
+		mSomnusSessionContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.6).isActive = true
+		mSomnusSessionContainerView.alpha = 0.0
+
+		// Somnus Session Countdown, Now Playing, and Alarm Labels
+		
+		mSomnusSessionContainerView.addSubview(mNowPlayingLabel)
+		mNowPlayingLabel.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mNowPlayingLabel.centerYAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mNowPlayingLabel.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mNowPlayingLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
+		
+		mSomnusSessionContainerView.addSubview(mCountdownLabel)
+		mCountdownLabel.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mCountdownLabel.topAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
+		mCountdownLabel.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
+		
+		mSomnusSessionContainerView.addSubview(mAlarmLabel)
+		mAlarmLabel.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mAlarmLabel.bottomAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mAlarmLabel.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
 	}
 	
 	/***
@@ -167,6 +239,30 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	// Allow uidatepicker to recognize multiple gestures
 	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
 		return true // Obviously think about the logic of what to return in various cases
+	}
+	
+	// Collection View Methods
+	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+		return mMPMediaPlaylists.count
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+		let playlistCell: PlaylistCell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaylistCellID", for: indexPath) as! PlaylistCell
+		playlistCell.mPlaylistLabel.text = mMPMediaPlaylists[indexPath.item].name
+		return playlistCell
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+		let index: Int = indexPath.item
+		let selectedPlaylist: MPMediaPlaylist = mMPMediaPlaylists[index]
+		if collectionView == mCountdownPlaylistsCollectionView {
+			print("countdown collectionview")
+			mCountdownPlaylist = selectedPlaylist
+		} else {
+			print("alarm collectionview")
+			mAlarmPlaylist = selectedPlaylist
+		}
+		
 	}
 	
 	/***
@@ -342,46 +438,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		}
 	}
 	
-	// Gesture Targets
-	
-	@objc func countdownTimerTapped() {
-		UIView.animate(withDuration: 1.0, animations: {
-			self.mCountdownTimerStackView.frame.origin.x -= SCREENBOUNDS.width
-			self.mCountdownControlStackView.frame.origin.x -= SCREENBOUNDS.width
-		}) { (Bool) in
-			print("done")
-		}
-	}
-	
-	@objc func countdownDatePickerTapped() {
-		UIView.animate(withDuration: 1.0, animations: {
-			self.mCountdownTimerStackView.frame.origin.x += SCREENBOUNDS.width
-			self.mCountdownControlStackView.frame.origin.x += SCREENBOUNDS.width
-			self.mTimerLabel.text = self.mCountdownStr
-		}) { (Bool) in
-			print("done")
-		}
-	}
-	
-	@objc func alarmTapped() {
-		UIView.animate(withDuration: 1.0, animations: {
-			self.mAlarmStackView.frame.origin.x -= SCREENBOUNDS.width
-			self.mAlarmControlStackView.frame.origin.x -= SCREENBOUNDS.width
-		}) { (Bool) in
-			print("done")
-		}
-	}
-	
-	@objc func alarmDatePickerTapped() {
-		UIView.animate(withDuration: 1.0, animations: {
-			self.mAlarmStackView.frame.origin.x += SCREENBOUNDS.width
-			self.mAlarmControlStackView.frame.origin.x += SCREENBOUNDS.width
-			self.mAlarmLabel.text = self.mAlarmStr
-		}) { (Bool) in
-			print("done")
-		}
-	}
-	
 	// DatePicker delegate targets
 	
 	@objc func datePickerChanged(sender: UIDatePicker) {
@@ -402,32 +458,78 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	
 	// Button Targets
 	
-	@objc func countdownPlaylistsButtonPressed() {
-		print("countdownPlaylistsButtonPressed")
-		//		let notificationsController: NotificationsViewController = NotificationsViewController()
-		//		self.navigationController?.pushViewController(notificationsController, animated: true)
-	}
-	
-	@objc func alarmPlaylistButtonPressed() {
-		print("alarmPlaylistButtonPressed")
-	}
-	
-	@objc func alarmEnableDisableButtonPressed() {
-		print("alarmEnableDisableButtonPressed")
-		mAlarmTimer?.invalidate()
-	}
-	
-	@objc func countdownStartStopButtonPressed() {
-		print("countdownStartStopButtonPressed")
+	@objc func startSomnusSession() {
+		print("startSomnusSession")
+		print("\(mCountdownStr)")
+		print("\(mAlarmStr)")
+		mIsSomnusSessionActive = true
+		mCountdownTimeInterval = mCountdownDatePicker.countDownDuration
+		mAlarmDate = mAlarmDatePicker.date
+		mAlarmCalendar = mAlarmDatePicker.calendar
 		guard let countdownTimeInterval: TimeInterval = mCountdownTimeInterval else {
+			print("countdown time interval nil")
 			return
 		}
-		print("\(Double(countdownTimeInterval))")
+		guard let alarmDate: Date = mAlarmDate else {
+			print("alarm date nil")
+			return
+		}
+		guard let alarmCal: Calendar = mAlarmCalendar else {
+			print("alarm calendar nil")
+			return
+		}
+		mCountdownLabel.text = kSomnusUtils.formatSeconds(seconds: Double(countdownTimeInterval))
+		mAlarmLabel.text = kSomnusUtils.formatDate(date: alarmDate, calendar: alarmCal)
+		UIView.animate(withDuration: 1.0, animations: {
+			self.mSetUpContainerView.alpha = 0.0
+			self.mStartSomnusSessionButton.alpha = 0.0
+			self.mSomnusSessionContainerView.alpha = 1.0
+			self.mStopSomnusSessionButton.alpha = 1.0
+		}) { (bool) in
+			print("done")
+			self.mCountdownTimer?.invalidate()
+			self.mCountdownTimer = Timer.scheduledTimer(timeInterval: 1.0,
+												   target: self,
+												   selector: #selector(self.updateCountdown),
+												   userInfo: nil, repeats: true)
+		}
+	}
+	
+	func updatePlaylists() {
+		mMPMediaPlaylists.removeAll()
+		let myPlaylistQuery = MPMediaQuery.playlists()
+		guard let playlists = myPlaylistQuery.collections else {
+			return
+		}
+		for playlist in playlists {
+			guard let p = playlist as? MPMediaPlaylist else {
+				return
+			}
+			mMPMediaPlaylists.append(p)
+			print(playlist.value(forProperty: MPMediaPlaylistPropertyName)!)
+//			let songs = playlist.items
+//			for song in songs {
+//				let songTitle = song.value(forProperty: MPMediaItemPropertyTitle)
+//				print("\t\t", songTitle!)
+//			}
+		}
+		print("playlists: \(mMPMediaPlaylists.count)")
+	}
+	
+	@objc func stopSomnusSession() {
+		print("stopSomnusSession")
+		print("\(mCountdownStr)")
+		print("\(mAlarmStr)")
+		mIsSomnusSessionActive = false
 		mCountdownTimer?.invalidate()
-		mCountdownTimer = Timer.scheduledTimer(timeInterval: 1.0,
-											   target: self,
-											   selector: #selector(updateCountdown),
-											   userInfo: nil, repeats: true)
+		UIView.animate(withDuration: 1.0, animations: {
+			self.mSetUpContainerView.alpha = 1.0
+			self.mStartSomnusSessionButton.alpha = 1.0
+			self.mSomnusSessionContainerView.alpha = 0.0
+			self.mStopSomnusSessionButton.alpha = 0.0
+		}) { (bool) in
+			print("done")
+		}
 	}
 	
 	// UI Update Targets
@@ -443,7 +545,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		mCountdownTimeInterval! -= 1.0
 		mCountdownStr =
 			kSomnusUtils.formatSeconds(seconds: Double(mCountdownTimeInterval!))
-		self.mTimerLabel.text = mCountdownStr
+		self.mCountdownLabel.text = mCountdownStr
 	}
 	
 	/***
@@ -451,6 +553,12 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	*/
 	fileprivate let kSomnusUtils: SomnusUtils = SomnusUtils()
 	
+	fileprivate let mMPMediaPlayer: MPMusicPlayerApplicationController =
+		MPMusicPlayerApplicationController.applicationQueuePlayer
+	fileprivate var mMPMediaPlaylists: Array<MPMediaPlaylist> = Array<MPMediaPlaylist>()
+	fileprivate var mCountdownPlaylist: MPMediaPlaylist?
+	fileprivate var mAlarmPlaylist: MPMediaPlaylist?
+
 	fileprivate var mStarTimer1: Timer?
 	fileprivate var mStarTimer2: Timer?
 	fileprivate var mStarTimer3: Timer?
@@ -467,11 +575,13 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	fileprivate var mCloudTimer3: Timer?
 	fileprivate var mCloudContainer: Array<UIImageView> = Array<UIImageView>()
 	
+	fileprivate var mIsSomnusSessionActive: Bool = false
+	
 	fileprivate var mCountdownStr: String = "00:00:00"
 	fileprivate var mCountdownTimeInterval: TimeInterval?
 	fileprivate var mCountdownTimer: Timer?
 	
-	fileprivate var mAlarmStr: String = "10:15 AM"
+	fileprivate var mAlarmStr: String = "00:00 AM"
 	fileprivate var mAlarmTimer: Timer?
 	fileprivate var mAlarmDate: Date?
 	fileprivate var mAlarmCalendar: Calendar?
@@ -490,26 +600,24 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		return view
 	}()
 	
-	let mCountdownTimerStackView: UIStackView = {
-		let stackview: UIStackView = UIStackView()
-		stackview.axis = NSLayoutConstraint.Axis.horizontal
-		stackview.distribution = UIStackView.Distribution.fillEqually
-		stackview.spacing = 0
-		stackview.isUserInteractionEnabled = true
-		stackview.translatesAutoresizingMaskIntoConstraints = false
-		return stackview
+	fileprivate let mSetUpContainerView: UIView = {
+		let view: UIView = UIView()
+		view.backgroundColor = UIColor.clear
+		view.layer.borderWidth = 2
+		view.layer.borderColor = UIColor.black.cgColor
+		view.translatesAutoresizingMaskIntoConstraints = false
+		return view
 	}()
 	
-	fileprivate let mTimerLabel: UILabel = {
+	fileprivate let mCountdownExplanationLabel: UILabel = {
 		let label: UILabel = UILabel()
-		label.isUserInteractionEnabled = true
-		label.text = "00:00:00"
+		label.text = "Choose music duration:"
 		label.textColor = UIColor.white
-		label.backgroundColor = UIColor.gray
-		label.textAlignment = NSTextAlignment.center
+		label.backgroundColor = UIColor.magenta
+		label.textAlignment = NSTextAlignment.left
 		label.numberOfLines = 1
 		label.lineBreakMode = NSLineBreakMode.byWordWrapping
-		label.font = UIFont(name: FONTNAME, size: 56)
+		label.font = UIFont(name: FONTNAMEBOLD, size: 18)
 		label.translatesAutoresizingMaskIntoConstraints = false
 		return label
 	}()
@@ -526,54 +634,136 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		return dp
 	}()
 	
-	let mCountdownControlStackView: UIStackView = {
-		let stackview: UIStackView = UIStackView()
-		stackview.axis = NSLayoutConstraint.Axis.horizontal
-		stackview.distribution = UIStackView.Distribution.fillEqually
-		stackview.spacing = 0
-		stackview.isUserInteractionEnabled = true
-		stackview.translatesAutoresizingMaskIntoConstraints = false
-		return stackview
+	fileprivate let mCountdownPlaylistExplanationLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Choose Playlist:"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.magenta
+		label.textAlignment = NSTextAlignment.left
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAMEBOLD, size: 18)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
 	}()
 	
-	fileprivate let mCountdownPlaylistButton: UIButton = {
-		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
-		button.backgroundColor = UIColor.yellow
-		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
-		button.titleLabel?.textAlignment = NSTextAlignment.center
-		button.setTitle("Playlist", for: UIControl.State.normal)
-		button.addTarget(self, action: #selector(countdownPlaylistsButtonPressed),
-						 for: UIControl.Event.touchUpInside)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		return button
+	fileprivate let mCountdownPlaylistsCollectionView: UICollectionView = {
+		let layout: UICollectionViewFlowLayout  = UICollectionViewFlowLayout()
+		let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+		layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
+		layout.estimatedItemSize = CGSize(width: 1.0, height: 1.0)
+		collectionView.showsHorizontalScrollIndicator = false
+		collectionView.backgroundColor = UIColor.cyan
+		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
+		collectionView.translatesAutoresizingMaskIntoConstraints = false
+		return collectionView
 	}()
 	
-	fileprivate let mCountdownStartStopButton: UIButton = {
+	fileprivate let mAlarmExplanationLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Choose alarm time:"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.magenta
+		label.textAlignment = NSTextAlignment.left
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAMEBOLD, size: 18)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
+	fileprivate let mAlarmDatePicker: UIDatePicker = {
+		let dp: UIDatePicker = UIDatePicker()
+		dp.setValue(UIColor.darkGray, forKeyPath: "textColor")
+		dp.isUserInteractionEnabled = true
+		dp.backgroundColor = UIColor.cyan
+		dp.datePickerMode = UIDatePicker.Mode.time
+		dp.addTarget(self, action: #selector(datePickerChanged(sender:)),
+					 for: UIControl.Event.valueChanged)
+		dp.translatesAutoresizingMaskIntoConstraints = false
+		return dp
+	}()
+	
+	fileprivate let mAlarmPlaylistExplanationLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Choose Playlist:"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.magenta
+		label.textAlignment = NSTextAlignment.left
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAMEBOLD, size: 18)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
+	fileprivate let mAlarmPlaylistsCollectionView: UICollectionView = {
+		let layout: UICollectionViewFlowLayout  = UICollectionViewFlowLayout()
+		let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+		layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
+		layout.estimatedItemSize = CGSize(width: 1.0, height: 1.0)
+		collectionView.showsHorizontalScrollIndicator = false
+		collectionView.backgroundColor = UIColor.cyan
+		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
+		collectionView.translatesAutoresizingMaskIntoConstraints = false
+		return collectionView
+	}()
+	
+	fileprivate let mStartSomnusSessionButton: UIButton = {
 		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
 		button.backgroundColor = UIColor.green
 		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
 		button.titleLabel?.textAlignment = NSTextAlignment.center
-		button.setTitle("Start", for: UIControl.State.normal)
-		button.addTarget(self, action: #selector(countdownStartStopButtonPressed),
+		button.layer.cornerRadius = 35
+		button.clipsToBounds = true
+		button.setTitle("start", for: UIControl.State.normal)
+		button.addTarget(self, action: #selector(startSomnusSession),
 						 for: UIControl.Event.touchUpInside)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		return button
 	}()
 	
-	let mAlarmStackView: UIStackView = {
-		let stackview: UIStackView = UIStackView()
-		stackview.axis = NSLayoutConstraint.Axis.horizontal
-		stackview.distribution = UIStackView.Distribution.fillEqually
-		stackview.spacing = 0
-		stackview.isUserInteractionEnabled = true
-		stackview.translatesAutoresizingMaskIntoConstraints = false
-		return stackview
+	fileprivate let mSomnusSessionContainerView: UIView = {
+		let view: UIView = UIView()
+		view.backgroundColor = UIColor.clear
+		view.layer.borderWidth = 2
+		view.layer.borderColor = UIColor.black.cgColor
+		view.translatesAutoresizingMaskIntoConstraints = false
+		return view
+	}()
+	
+	fileprivate let mCountdownLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.isUserInteractionEnabled = true
+		label.text = "00:00:00"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.gray
+		label.textAlignment = NSTextAlignment.center
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 56)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
+	fileprivate let mNowPlayingLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.isUserInteractionEnabled = true
+		label.text = "Now Playing"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.gray
+		label.textAlignment = NSTextAlignment.center
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 36)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
 	}()
 	
 	fileprivate let mAlarmLabel: UILabel = {
 		let label: UILabel = UILabel()
 		label.isUserInteractionEnabled = true
-		label.text = "10:15 AM"
+		label.text = "00:00 AM"
 		label.textColor = UIColor.darkGray
 		label.backgroundColor = UIColor.magenta
 		label.textAlignment = NSTextAlignment.center
@@ -584,58 +774,26 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		return label
 	}()
 	
-	fileprivate let mAlarmDatePicker: UIDatePicker = {
-		let dp: UIDatePicker = UIDatePicker()
-		dp.setValue(UIColor.darkGray, forKeyPath: "textColor")
-		dp.isUserInteractionEnabled = true
-		dp.backgroundColor = UIColor.magenta
-		dp.datePickerMode = UIDatePicker.Mode.time
-		dp.addTarget(self, action: #selector(datePickerChanged(sender:)),
-					 for: UIControl.Event.valueChanged)
-		dp.translatesAutoresizingMaskIntoConstraints = false
-		return dp
-	}()
-	
-	let mAlarmControlStackView: UIStackView = {
-		let stackview: UIStackView = UIStackView()
-		stackview.axis = NSLayoutConstraint.Axis.horizontal
-		stackview.distribution = UIStackView.Distribution.fillEqually
-		stackview.spacing = 0
-		stackview.isUserInteractionEnabled = true
-		stackview.translatesAutoresizingMaskIntoConstraints = false
-		return stackview
-	}()
-	
-	fileprivate let mAlarmPlaylistButton: UIButton = {
-		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
-		button.backgroundColor = UIColor.yellow
-		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
-		button.titleLabel?.textAlignment = NSTextAlignment.center
-		button.setTitle("Playlist", for: UIControl.State.normal)
-		button.addTarget(self, action: #selector(alarmPlaylistButtonPressed),
-						 for: UIControl.Event.touchUpInside)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		return button
-	}()
-	
-	fileprivate let mAlarmEnableDisableButton: UIButton = {
-		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
-		button.backgroundColor = UIColor.green
-		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
-		button.titleLabel?.textAlignment = NSTextAlignment.center
-		button.setTitle("Enable", for: UIControl.State.normal)
-		button.addTarget(self, action: #selector(alarmEnableDisableButtonPressed),
-						 for: UIControl.Event.touchUpInside)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		return button
-	}()
-	
 	fileprivate let mSunImageView: UIImageView = {
 		let view: UIImageView = UIImageView(image: UIImage(named: "sun"))
 		view.image = view.image?.withRenderingMode(.alwaysTemplate)
 		view.tintColor = SUNCOLOR
 		view.translatesAutoresizingMaskIntoConstraints = false
 		return view
+	}()
+	
+	fileprivate let mStopSomnusSessionButton: UIButton = {
+		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
+		button.backgroundColor = UIColor.red
+		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
+		button.titleLabel?.textAlignment = NSTextAlignment.center
+		button.layer.cornerRadius = 35
+		button.clipsToBounds = true
+		button.setTitle("stop", for: UIControl.State.normal)
+		button.addTarget(self, action: #selector(stopSomnusSession),
+						 for: UIControl.Event.touchUpInside)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		return button
 	}()
 	
 	fileprivate var mCloudOneImageView: UIImageView!
@@ -649,4 +807,5 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	fileprivate let kCloudThreeTime: Int = 20
 	fileprivate let kMinCloudBound: CGFloat = SCREENBOUNDS.height / 2.0
 	fileprivate let kMaxCloudBound: CGFloat = (SCREENBOUNDS.height / 2.0) + 100.0
+	
 }
