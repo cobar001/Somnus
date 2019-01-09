@@ -7,15 +7,31 @@
 //
 
 import UIKit
+import MediaPlayer
 
-class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
+class SomnusViewController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate,
+UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
 		// Quick set up
+		registerDelegates()
+		updatePlaylists()
 		setUpNav()
 		setUpUI()
+//		let myPlaylistQuery = MPMediaQuery.playlists()
+//		let playlists = myPlaylistQuery.collections
+//		for playlist in playlists! {
+//			print(playlist.value(forProperty: MPMediaPlaylistPropertyName)!)
+//			let songs = playlist.items
+//			for song in songs {
+//				let songTitle = song.value(forProperty: MPMediaItemPropertyTitle)
+//				print("\t\t", songTitle!)
+//			}
+//		}
+//		mMPMediaPlayer.setQueue(with: MPMediaQuery.songs())
+//		mMPMediaPlayer.play()
     }
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -36,6 +52,13 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		self.navigationController?.navigationBar.isTranslucent = true
 		self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: UIBarButtonItem.Style.plain, target: nil, action: nil)
 		self.navigationController?.isNavigationBarHidden = true
+	}
+	
+	fileprivate func registerDelegates() {
+		mCountdownPlaylistsCollectionView.delegate = self
+		mCountdownPlaylistsCollectionView.dataSource = self
+		mAlarmPlaylistsCollectionView.delegate = self
+		mAlarmPlaylistsCollectionView.dataSource = self
 	}
 	
 	fileprivate func setUpUI() {
@@ -141,22 +164,22 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		mCountdownPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mCountdownPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		
-		mSetUpContainerView.addSubview(mCountdownPlaylistButton)
-		mCountdownPlaylistButton.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mCountdownPlaylistButton.topAnchor.constraint(equalTo: mCountdownPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mCountdownPlaylistButton.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mCountdownPlaylistButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		mSetUpContainerView.addSubview(mCountdownPlaylistsCollectionView)
+		mCountdownPlaylistsCollectionView.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mCountdownPlaylistsCollectionView.topAnchor.constraint(equalTo: mCountdownPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mCountdownPlaylistsCollectionView.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		
 		// Alarm Controls StackView
 		
-		mSetUpContainerView.addSubview(mAlarmPlaylistButton)
-		mAlarmPlaylistButton.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mAlarmPlaylistButton.bottomAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mAlarmPlaylistButton.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mAlarmPlaylistButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		mSetUpContainerView.addSubview(mAlarmPlaylistsCollectionView)
+		mAlarmPlaylistsCollectionView.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mAlarmPlaylistsCollectionView.bottomAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mAlarmPlaylistsCollectionView.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		
 		mSetUpContainerView.addSubview(mAlarmPlaylistExplanationLabel)
-		mAlarmPlaylistExplanationLabel.bottomAnchor.constraint(equalTo: mAlarmPlaylistButton.safeAreaLayoutGuide.topAnchor).isActive = true
+		mAlarmPlaylistExplanationLabel.bottomAnchor.constraint(equalTo: mAlarmPlaylistsCollectionView.safeAreaLayoutGuide.topAnchor).isActive = true
 		mAlarmPlaylistExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mAlarmPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mAlarmPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -216,6 +239,30 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	// Allow uidatepicker to recognize multiple gestures
 	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
 		return true // Obviously think about the logic of what to return in various cases
+	}
+	
+	// Collection View Methods
+	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+		return mMPMediaPlaylists.count
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+		let playlistCell: PlaylistCell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaylistCellID", for: indexPath) as! PlaylistCell
+		playlistCell.mPlaylistLabel.text = mMPMediaPlaylists[indexPath.item].name
+		return playlistCell
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+		let index: Int = indexPath.item
+		let selectedPlaylist: MPMediaPlaylist = mMPMediaPlaylists[index]
+		if collectionView == mCountdownPlaylistsCollectionView {
+			print("countdown collectionview")
+			mCountdownPlaylist = selectedPlaylist
+		} else {
+			print("alarm collectionview")
+			mAlarmPlaylist = selectedPlaylist
+		}
+		
 	}
 	
 	/***
@@ -411,16 +458,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	
 	// Button Targets
 	
-	@objc func countdownPlaylistsButtonPressed() {
-		print("countdownPlaylistsButtonPressed")
-		//		let notificationsController: NotificationsViewController = NotificationsViewController()
-		//		self.navigationController?.pushViewController(notificationsController, animated: true)
-	}
-	
-	@objc func alarmPlaylistButtonPressed() {
-		print("alarmPlaylistButtonPressed")
-	}
-	
 	@objc func startSomnusSession() {
 		print("startSomnusSession")
 		print("\(mCountdownStr)")
@@ -456,6 +493,27 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 												   selector: #selector(self.updateCountdown),
 												   userInfo: nil, repeats: true)
 		}
+	}
+	
+	func updatePlaylists() {
+		mMPMediaPlaylists.removeAll()
+		let myPlaylistQuery = MPMediaQuery.playlists()
+		guard let playlists = myPlaylistQuery.collections else {
+			return
+		}
+		for playlist in playlists {
+			guard let p = playlist as? MPMediaPlaylist else {
+				return
+			}
+			mMPMediaPlaylists.append(p)
+			print(playlist.value(forProperty: MPMediaPlaylistPropertyName)!)
+//			let songs = playlist.items
+//			for song in songs {
+//				let songTitle = song.value(forProperty: MPMediaItemPropertyTitle)
+//				print("\t\t", songTitle!)
+//			}
+		}
+		print("playlists: \(mMPMediaPlaylists.count)")
 	}
 	
 	@objc func stopSomnusSession() {
@@ -495,6 +553,12 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	*/
 	fileprivate let kSomnusUtils: SomnusUtils = SomnusUtils()
 	
+	fileprivate let mMPMediaPlayer: MPMusicPlayerApplicationController =
+		MPMusicPlayerApplicationController.applicationQueuePlayer
+	fileprivate var mMPMediaPlaylists: Array<MPMediaPlaylist> = Array<MPMediaPlaylist>()
+	fileprivate var mCountdownPlaylist: MPMediaPlaylist?
+	fileprivate var mAlarmPlaylist: MPMediaPlaylist?
+
 	fileprivate var mStarTimer1: Timer?
 	fileprivate var mStarTimer2: Timer?
 	fileprivate var mStarTimer3: Timer?
@@ -583,16 +647,16 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		return label
 	}()
 	
-	fileprivate let mCountdownPlaylistButton: UIButton = {
-		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
-		button.backgroundColor = UIColor.yellow
-		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
-		button.titleLabel?.textAlignment = NSTextAlignment.center
-		button.setTitle("None Selected", for: UIControl.State.normal)
-		button.addTarget(self, action: #selector(countdownPlaylistsButtonPressed),
-						 for: UIControl.Event.touchUpInside)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		return button
+	fileprivate let mCountdownPlaylistsCollectionView: UICollectionView = {
+		let layout: UICollectionViewFlowLayout  = UICollectionViewFlowLayout()
+		let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+		layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
+		layout.estimatedItemSize = CGSize(width: 1.0, height: 1.0)
+		collectionView.showsHorizontalScrollIndicator = false
+		collectionView.backgroundColor = UIColor.cyan
+		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
+		collectionView.translatesAutoresizingMaskIntoConstraints = false
+		return collectionView
 	}()
 	
 	fileprivate let mAlarmExplanationLabel: UILabel = {
@@ -633,16 +697,16 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 		return label
 	}()
 	
-	fileprivate let mAlarmPlaylistButton: UIButton = {
-		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
-		button.backgroundColor = UIColor.yellow
-		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
-		button.titleLabel?.textAlignment = NSTextAlignment.center
-		button.setTitle("None Selected", for: UIControl.State.normal)
-		button.addTarget(self, action: #selector(alarmPlaylistButtonPressed),
-						 for: UIControl.Event.touchUpInside)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		return button
+	fileprivate let mAlarmPlaylistsCollectionView: UICollectionView = {
+		let layout: UICollectionViewFlowLayout  = UICollectionViewFlowLayout()
+		let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+		layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
+		layout.estimatedItemSize = CGSize(width: 1.0, height: 1.0)
+		collectionView.showsHorizontalScrollIndicator = false
+		collectionView.backgroundColor = UIColor.cyan
+		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
+		collectionView.translatesAutoresizingMaskIntoConstraints = false
+		return collectionView
 	}()
 	
 	fileprivate let mStartSomnusSessionButton: UIButton = {
@@ -743,4 +807,5 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate {
 	fileprivate let kCloudThreeTime: Int = 20
 	fileprivate let kMinCloudBound: CGFloat = SCREENBOUNDS.height / 2.0
 	fileprivate let kMaxCloudBound: CGFloat = (SCREENBOUNDS.height / 2.0) + 100.0
+	
 }
