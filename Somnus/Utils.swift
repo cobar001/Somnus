@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MediaPlayer
 
 let FONTNAME: String = "Avenir-Roman"
 let FONTNAMEBOLD: String = "Avenir-Heavy"
@@ -44,8 +45,40 @@ class SomnusUtils {
 		var hour: Int = components.hour!
 		let minute: Int = components.minute!
 		var suffix: String = "AM"
-		if hour > 11 { suffix = "PM"; hour -= 12; }
-		return String(format: "%d:%02d %@", hour, minute, suffix)
+		if hour == 0 {
+			suffix = "AM"; hour = 12;
+		} else if hour > 12 {
+			suffix = "PM"; hour -= 12;
+		} else if hour == 12 {
+			suffix = "PM"; hour = 12;
+		}
+		return String(format: "%02d:%02d %@", hour, minute, suffix)
+	}
+	
+	public func startPlaylistContinuous(
+		mediaPlayer: MPMusicPlayerApplicationController?, selectedPlaylist: MPMediaPlaylist?) {
+		guard let playerController: MPMusicPlayerController = mediaPlayer else {
+			print("mediaPlayer nil")
+			return
+		}
+		guard let playlist: MPMediaPlaylist = selectedPlaylist else {
+			print("selectedPLaylist nil")
+			return
+		}
+		playerController.repeatMode = MPMusicRepeatMode.all
+		playerController.shuffleMode = MPMusicShuffleMode.off
+		playerController.setQueue(with: playlist)
+		playerController.play()
+		playerController.beginGeneratingPlaybackNotifications()
+	}
+	
+	public func stopPlaylist(mediaPlayer: MPMusicPlayerApplicationController?) {
+		guard let playerController: MPMusicPlayerController = mediaPlayer else {
+			print("mediaPlayer nil")
+			return
+		}
+		playerController.stop()
+		playerController.endGeneratingPlaybackNotifications()
 	}
 }
 
@@ -53,4 +86,9 @@ enum InputError: Error {
 	case InvalidInput
 	case NotEnoughInputParameters
 	case InvalidInputType
+}
+
+enum PlaylistError: Error {
+	case EmptyPlaylist
+	case PlaylistNotChosen
 }
