@@ -12,14 +12,28 @@ import MediaPlayer
 class SomnusViewController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate,
 UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
+	deinit {
+		print("Remove NotificationCenter Deinit")
+		// Remove notfications for media player
+		NotificationCenter.default.removeObserver(self)
+	}
+	
     override func viewDidLoad() {
         super.viewDidLoad()
 
-		// Quick set up
+		// Quick set up views, delegates (collection view), current playlists
+		// and navigation
 		registerDelegates()
 		updatePlaylists()
 		setUpNav()
 		setUpUI()
+		// Prepare MediaPlayer for playback
+		mMPMediaPlayer.prepareToPlay()
+		// Register ViewController to receive mediaplayer playback updates
+		NotificationCenter.default.addObserver(
+			self, selector: #selector(updateNowPlayingInfo),
+			name: NSNotification.Name.MPMusicPlayerControllerNowPlayingItemDidChange,
+			object: nil)
     }
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -34,7 +48,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	}
 
 	fileprivate func setUpNav() {
-		// Hide Nav
+		// Setup/Hide Nav
 		self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
 		self.navigationController?.navigationBar.shadowImage = UIImage()
 		self.navigationController?.navigationBar.isTranslucent = true
@@ -199,12 +213,14 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mNowPlayingLabel.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mNowPlayingLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
 		
+		// Somnus Session Countdown Label
 		mSomnusSessionContainerView.addSubview(mCountdownLabel)
 		mCountdownLabel.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mCountdownLabel.topAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
 		mCountdownLabel.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mCountdownLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
 		
+		// Somnus Session Alarm label
 		mSomnusSessionContainerView.addSubview(mAlarmLabel)
 		mAlarmLabel.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mAlarmLabel.bottomAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
@@ -212,6 +228,9 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mAlarmLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
 	}
 	
+	// Set system volume to kCountdownStartVolume and
+	// initialize sountdown steps based on
+	// kCountdownStartVolume/kCountdownEndVolume delta
 	fileprivate func initializeCountdownVolume() {
 		mCountdownCurrentVolume = kCountdownStartVolume
 		guard let countdownInterval: TimeInterval = mCountdownTimeInterval else {
@@ -226,33 +245,34 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	* Delegate Methods
 	*/
 	
-	// Allow uidatepicker to recognize multiple gestures
+	// Allow uidatepicker to recognize multiple gestures (currently no extra gestures)
 	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
 		return true // Obviously think about the logic of what to return in various cases
 	}
 	
-	// Collection View Methods
+	// Set both Countdown and Alarm Playlists count
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		return mMPMediaPlaylists.count
 	}
 	
+	// Set up both Countdown and Alarm Playlist cells
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let playlistCell: PlaylistCell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaylistCellID", for: indexPath) as! PlaylistCell
 		playlistCell.mPlaylistLabel.text = mMPMediaPlaylists[indexPath.item].name
 		return playlistCell
 	}
 	
+	// Handle collection view selections, handling both countdown and alarm
+	// collection views and differentiating based on UICollectionView
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		let index: Int = indexPath.item
 		let selectedPlaylist: MPMediaPlaylist = mMPMediaPlaylists[index]
 		if collectionView == mCountdownPlaylistsCollectionView {
-			print("countdown collectionview")
 			mCountdownPlaylist = selectedPlaylist
-			print("\(mCountdownPlaylist?.name!)")
+			print("countdown collectionview \(mCountdownPlaylist?.name!)")
 		} else {
-			print("alarm collectionview")
 			mAlarmPlaylist = selectedPlaylist
-			print("\(mAlarmPlaylist?.name!)")
+			print("alarm collectionview \(mAlarmPlaylist?.name!)")
 		}
 		
 	}
@@ -261,8 +281,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	* User Interface Widget Methods
 	*/
 	
-	// Set up animations and background portions
-	
+	// Choose random star and scale and reverse scale
 	@objc func twinkleStar(sender: Timer) {
 		// choose star in container to twinkle
 		guard let userInfo = sender.userInfo as? [String: Int] else {
@@ -293,6 +312,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		}
 	}
 	
+	// Subtle change to sun color over time
 	@objc func sunRaysAnimation(sender: Timer) {
 		guard let userInfo = sender.userInfo as? [String: Int] else {
 			return
@@ -309,6 +329,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		}
 	}
 	
+	// Start different timers to call @twinkleStar
 	fileprivate func startStarTwinkles() {
 		mStarTimer1 = Timer.scheduledTimer(
 			timeInterval: 1.0, target: self, selector: #selector(twinkleStar(sender:)), userInfo: ["number": 1], repeats: true)
@@ -318,6 +339,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			timeInterval: 1.5, target: self, selector: #selector(twinkleStar(sender:)), userInfo: ["number": 3], repeats: true)
 	}
 	
+	// Start different timer to call @sunRaysAnimation
 	fileprivate func startSunRays() {
 		mSunRayTimer = Timer.scheduledTimer(
 			timeInterval: Double(kSunRayTime),
@@ -326,6 +348,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			userInfo: ["interval": kSunRayTime], repeats: true)
 	}
 	
+	// Create, place, and retain uiviews as stars in random origin in range
 	fileprivate func populateStarContainer() {
 		let widthBounds: Array<Int> = [0, Int(SCREENBOUNDS.width)]
 		let heightBounds1: Array<Int> = [0, Int(SCREENBOUNDS.height * 0.25)]
@@ -360,6 +383,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		}
 	}
 	
+	// Create/Place cloud imageviews outside of screen bounds
 	fileprivate func registerClouds() {
 		mCloudOneImageView = UIImageView(frame: kCloudOneOrigin)
 		mCloudOneImageView.image = UIImage(named: "cloud1")
@@ -375,6 +399,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mCloudContainer.append(mCloudThreeImageView)
 	}
 	
+	// Start different timers to call @moveCloud
 	fileprivate func startCloudMovement() {
 		mCloudTimer1 = Timer.scheduledTimer(
 			timeInterval: Double(kCloudOneTime),
@@ -396,6 +421,8 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			repeats: true)
 	}
 	
+	// Places cloud along random y component and x component off the screen.
+	// Than move cloud across screen with speed associated with specific cloud (kCloudOneTime, etc.)
 	@objc func moveCloud(sender: Timer) {
 		guard let userInfo = sender.userInfo as? [String: Int] else {
 			return
@@ -430,8 +457,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		}
 	}
 	
-	// DatePicker delegate targets
-	
+	// Countdown UIDatePicker delegate target
 	@objc func datePickerChanged(sender: UIDatePicker) {
 		if sender.datePickerMode == UIDatePicker.Mode.countDownTimer {
 			// editing countdown datepicker
@@ -448,16 +474,17 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		}
 	}
 	
-	// Button Targets
-	
+	// Start Comnus Session Button target
 	@objc func startSomnusSession() {
 		print("startSomnusSession")
 		print("\(mCountdownStr)")
 		print("\(mAlarmStr)")
+		// Initialize session values
 		mIsSomnusSessionActive = true
 		mCountdownTimeInterval = mCountdownDatePicker.countDownDuration
 		mAlarmDate = mAlarmDatePicker.date
 		mAlarmCalendar = mAlarmDatePicker.calendar
+		// Safely retrieve optional members
 		guard let countdownTimeInterval: TimeInterval = mCountdownTimeInterval else {
 			print("countdown time interval nil")
 			return
@@ -470,6 +497,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			print("alarm calendar nil")
 			return
 		}
+		// Ensure playlist is selected, otherwise present alert
 		if mCountdownPlaylist == nil {
 			presentError(errorType: PlaylistError.PlaylistNotChosen)
 			return
@@ -478,36 +506,53 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			presentError(errorType: PlaylistError.EmptyPlaylist)
 			return
 		}
+		// Format countdown and alarm values to present in Somnus Session
 		mCountdownLabel.text = kSomnusUtils.formatSeconds(seconds: Double(countdownTimeInterval))
 		mAlarmLabel.text = kSomnusUtils.formatDate(date: alarmDate, calendar: alarmCal)
+		// Start the selected playlist with MPMediaPlayer
 		kSomnusUtils.startPlaylistContinuous(
 			mediaPlayer: mMPMediaPlayer, selectedPlaylist: mCountdownPlaylist)
+		// Set system volum to kCountdownStartVolume
 		initializeCountdownVolume()
-		UIView.animate(withDuration: 1.0, animations: {
+		// Animate into the session
+		UIView.animate(withDuration: 0.5, animations: {
 			self.mSetUpContainerView.alpha = 0.0
 			self.mStartSomnusSessionButton.alpha = 0.0
 			self.mSomnusSessionContainerView.alpha = 1.0
 			self.mStopSomnusSessionButton.alpha = 1.0
+			UIScreen.main.brightness = CGFloat(0.1)
 		}) { (bool) in
-			print("done")
+			print("start countdown animation done")
 			self.mCountdownTimer?.invalidate()
 			self.mCountdownTimer = Timer.scheduledTimer(timeInterval: 1.0,
 												   target: self,
 												   selector: #selector(self.updateCountdown),
 												   userInfo: nil, repeats: true)
-			
 		}
 	}
 	
+	// Convenience function to adjust slider to desired volume value (0.0 - 1.0)
 	fileprivate func changeVolume(new_volume: Float) {
 		if new_volume < 0.0 || new_volume > 1.0 {
 			return
 		}
-		let sliderSubViews = self.mVolumeControlSlider.subviews.filter{NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}
+		let sliderSubViews = self.mVolumeControlSlider.subviews.filter{
+			NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}
 		let slider = sliderSubViews.first as? UISlider
 		slider?.setValue(new_volume, animated: false)
 	}
 	
+	// Target of MPMedia now playing notification. Handle now playing UI updates.
+	@objc func updateNowPlayingInfo() {
+		guard let nowPlayingItem: MPMediaItem = mMPMediaPlayer.nowPlayingItem else {
+			return
+		}
+		print("now playing changed: \(String(describing: nowPlayingItem.title))")
+		mNowPlayingLabel.text = nowPlayingItem.title
+	}
+	
+	// Load Music playlists into container to populate collection views
+	// and subsequently play
 	fileprivate func updatePlaylists() {
 		mMPMediaPlaylists.removeAll()
 		let myPlaylistQuery = MPMediaQuery.playlists()
@@ -519,30 +564,35 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 				return
 			}
 			mMPMediaPlaylists.append(p)
-			print(playlist.value(forProperty: MPMediaPlaylistPropertyName)!)
+			//print(playlist.value(forProperty: MPMediaPlaylistPropertyName)!)
 		}
-		print("playlists: \(mMPMediaPlaylists.count)")
+		//print("playlists: \(mMPMediaPlaylists.count)")
 	}
 	
+	// Stop Somnus session. Invalidate timers, stop mediaplayer,
+	// and animate back to initialization options
 	@objc func stopSomnusSession() {
 		print("stopSomnusSession")
-		print("\(mCountdownStr)")
-		print("\(mAlarmStr)")
+		//print("\(mCountdownStr)")
+		//print("\(mAlarmStr)")
 		mIsSomnusSessionActive = false
 		mCountdownTimer?.invalidate()
-		UIView.animate(withDuration: 1.0, animations: {
+		UIView.animate(withDuration: 0.5, animations: {
 			self.mSetUpContainerView.alpha = 1.0
 			self.mStartSomnusSessionButton.alpha = 1.0
 			self.mSomnusSessionContainerView.alpha = 0.0
 			self.mStopSomnusSessionButton.alpha = 0.0
+			UIScreen.main.brightness = CGFloat(0.25)
 		}) { (bool) in
-			print("done")
+			print("alarm animation done")
 			self.mMPMediaPlayer.stop()
 		}
 	}
 	
 	// UI Update Targets
 	
+	// Countdown timer target, update the current time interval
+	// and format/publish new interval to the UI
 	@objc func updateCountdown() {
 		if mCountdownTimeInterval == nil {
 			return
@@ -561,7 +611,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			return
 		}
 		mCountdownCurrentVolume! -= mCountdownVolumeStep!
-		print("new vol: \(mCountdownCurrentVolume!)")
+		//print("new vol: \(mCountdownCurrentVolume!)")
 		changeVolume(new_volume: mCountdownCurrentVolume!)
 	}
 	
@@ -569,6 +619,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	* Error functions
 	**/
 	
+	// Alert Error presentations
 	public func presentError(errorType: PlaylistError) {
 		var alert: UIAlertController?
 		switch errorType {
@@ -589,8 +640,8 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	
 	fileprivate let mVolumeControlSlider =
 		MPVolumeView(frame: CGRect(x: -50, y: -50, width: 0, height: 0))
-	fileprivate let kCountdownStartVolume: Float = 0.15
-	fileprivate let kCountdownEndVolume: Float = 0.03
+	fileprivate let kCountdownStartVolume: Float = 0.10
+	fileprivate let kCountdownEndVolume: Float = 0.01
 	fileprivate var mCountdownVolumeStep: Float?
 	fileprivate var mCountdownCurrentVolume: Float?
 	fileprivate let mMPMediaPlayer: MPMusicPlayerApplicationController =
