@@ -207,11 +207,25 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mSomnusSessionContainerView.alpha = 0.0
 
 		// Somnus Session Countdown, Now Playing, and Alarm Labels
-		mSomnusSessionContainerView.addSubview(mNowPlayingLabel)
-		mNowPlayingLabel.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mNowPlayingLabel.centerYAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerYAnchor).isActive = true
-		mNowPlayingLabel.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mNowPlayingLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
+		mSomnusSessionContainerView.addSubview(mNowPlayingContainerView)
+		mNowPlayingContainerView.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mNowPlayingContainerView.centerYAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mNowPlayingContainerView.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+		mNowPlayingContainerView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+		
+		mNowPlayingContainerView.addSubview(mNowPlayingAlbumImage)
+		mNowPlayingAlbumImage.centerXAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mNowPlayingAlbumImage.topAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
+		mNowPlayingAlbumImage.heightAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.63).isActive = true
+		mNowPlayingAlbumImage.widthAnchor.constraint(equalTo: mNowPlayingAlbumImage.safeAreaLayoutGuide.heightAnchor).isActive = true
+		
+		mNowPlayingContainerView.addSubview(mNowPlayingTrackArtistStackView)
+		mNowPlayingTrackArtistStackView.centerXAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mNowPlayingTrackArtistStackView.bottomAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mNowPlayingTrackArtistStackView.widthAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mNowPlayingTrackArtistStackView.heightAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.33).isActive = true
+		mNowPlayingTrackArtistStackView.addArrangedSubview(mNowPlayingTrackLabel)
+		mNowPlayingTrackArtistStackView.addArrangedSubview(mNowPlayingArtistLabel)
 		
 		// Somnus Session Countdown Label
 		mSomnusSessionContainerView.addSubview(mCountdownLabel)
@@ -232,13 +246,23 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	// initialize sountdown steps based on
 	// kCountdownStartVolume/kCountdownEndVolume delta
 	fileprivate func initializeCountdownVolume() {
-		mCountdownCurrentVolume = kCountdownStartVolume
+		mCurrentVolume = kCountdownStartVolume
 		guard let countdownInterval: TimeInterval = mCountdownTimeInterval else {
 			print("countdown interval not set")
 			return
 		}
 		mCountdownVolumeStep = (kCountdownStartVolume - kCountdownEndVolume) / Float(countdownInterval)
-		changeVolume(new_volume: mCountdownCurrentVolume!)
+		changeVolume(new_volume: mCurrentVolume!)
+	}
+	
+	fileprivate func initializeAlarmVolume() {
+		mCurrentVolume = kAlarmWakeStartVolume
+		guard let countdownInterval: TimeInterval = mAlarmWakeTimeInterval else {
+			print("alarm interval not set")
+			return
+		}
+		mAlarmWakeVolumeStep = (kAlarmWakeEndVolume - kAlarmWakeStartVolume) / Float(countdownInterval)
+		changeVolume(new_volume: mCurrentVolume!)
 	}
 	
 	/***
@@ -269,10 +293,10 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		let selectedPlaylist: MPMediaPlaylist = mMPMediaPlaylists[index]
 		if collectionView == mCountdownPlaylistsCollectionView {
 			mCountdownPlaylist = selectedPlaylist
-			print("countdown collectionview \(mCountdownPlaylist?.name!)")
+			print("countdown collectionview \(String(describing: mCountdownPlaylist?.name!))")
 		} else {
 			mAlarmPlaylist = selectedPlaylist
-			print("alarm collectionview \(mAlarmPlaylist?.name!)")
+			print("alarm collectionview \(String(describing: mAlarmPlaylist?.name!))")
 		}
 		
 	}
@@ -469,6 +493,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			mAlarmDate = sender.date
 			mAlarmCalendar = sender.calendar
 			mAlarmStr = kSomnusUtils.formatDate(date: mAlarmDate!, calendar: mAlarmCalendar!)
+			print("\(mAlarmStr)")
 		} else {
 			print("datepicker mode not supported")
 		}
@@ -480,10 +505,11 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		print("\(mCountdownStr)")
 		print("\(mAlarmStr)")
 		// Initialize session values
-		mIsSomnusSessionActive = true
+		//mIsSomnusSessionActive = true
 		mCountdownTimeInterval = mCountdownDatePicker.countDownDuration
 		mAlarmDate = mAlarmDatePicker.date
 		mAlarmCalendar = mAlarmDatePicker.calendar
+		mAlarmWakeTimeInterval = TimeInterval(exactly: 300.0)
 		// Safely retrieve optional members
 		guard let countdownTimeInterval: TimeInterval = mCountdownTimeInterval else {
 			print("countdown time interval nil")
@@ -497,13 +523,21 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			print("alarm calendar nil")
 			return
 		}
-		// Ensure playlist is selected, otherwise present alert
+		// Ensure playlist is selected/valid, otherwise present alert
 		if mCountdownPlaylist == nil {
-			presentError(errorType: PlaylistError.PlaylistNotChosen)
+			presentPlaylistError(errorType: PlaylistError.CountdownPlaylistNotChosen)
 			return
 		}
-		if mCountdownPlaylist!.items.count < 1 {
-			presentError(errorType: PlaylistError.EmptyPlaylist)
+		if mCountdownPlaylist!.count < 1 {
+			presentPlaylistError(errorType: PlaylistError.EmptyCountdownPlaylist)
+			return
+		}
+		if mAlarmPlaylist == nil {
+			presentPlaylistError(errorType: PlaylistError.AlarmPlaylistNotChosen)
+			return
+		}
+		if mAlarmPlaylist!.count < 1 {
+			presentPlaylistError(errorType: PlaylistError.EmptyAlarmPlaylist)
 			return
 		}
 		// Format countdown and alarm values to present in Somnus Session
@@ -520,7 +554,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			self.mStartSomnusSessionButton.alpha = 0.0
 			self.mSomnusSessionContainerView.alpha = 1.0
 			self.mStopSomnusSessionButton.alpha = 1.0
-			UIScreen.main.brightness = CGFloat(0.1)
+			UIScreen.main.brightness = CGFloat(0.01)
 		}) { (bool) in
 			print("start countdown animation done")
 			self.mCountdownTimer?.invalidate()
@@ -528,6 +562,8 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 												   target: self,
 												   selector: #selector(self.updateCountdown),
 												   userInfo: nil, repeats: true)
+			// Initialize the alarm timer
+			self.startAlarmTimer(alarmDate: alarmDate)
 		}
 	}
 	
@@ -542,13 +578,60 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		slider?.setValue(new_volume, animated: false)
 	}
 	
+	fileprivate func startAlarmTimer(alarmDate: Date) {
+		print("starting alarm")
+		mAlarmTimer = Timer.init(
+			fireAt: alarmDate, interval: 0,
+			target: self,
+			selector: #selector(alarmTimeReached),
+			userInfo: nil, repeats: false)
+		RunLoop.main.add(mAlarmTimer!, forMode: RunLoop.Mode.common)
+	}
+	
+	@objc func alarmTimeReached() {
+		if let countdownTimer = mCountdownTimer {
+			if countdownTimer.isValid {
+				countdownTimer.invalidate()
+			}
+		}
+		mMPMediaPlayer.stop()
+		// Start the selected playlist with MPMediaPlayer
+		kSomnusUtils.startPlaylistContinuous(
+			mediaPlayer: mMPMediaPlayer, selectedPlaylist: mAlarmPlaylist)
+		// Set system volum to kCountdownStartVolume
+		initializeAlarmVolume()
+		mAlarmWakeTimer = Timer.scheduledTimer(timeInterval: 1.0,
+											   target: self,
+											   selector: #selector(self.updateAlarmWake),
+											   userInfo: nil, repeats: true)
+		
+		print("ALARM ALARM")
+	}
+	
 	// Target of MPMedia now playing notification. Handle now playing UI updates.
 	@objc func updateNowPlayingInfo() {
+		// check media player for validity
 		guard let nowPlayingItem: MPMediaItem = mMPMediaPlayer.nowPlayingItem else {
+			print("now playing item nil")
+			return
+		}
+		// get proper sized album artwork if valid
+		let nowPlayingArtworkSize: CGSize = CGSize(
+			width: mNowPlayingAlbumImage.bounds.width, height: mNowPlayingAlbumImage.bounds.height)
+		guard let nowPlayingArtworkImage: UIImage = nowPlayingItem.artwork?.image(at: nowPlayingArtworkSize) else {
+			print("error getting track artwork")
 			return
 		}
 		print("now playing changed: \(String(describing: nowPlayingItem.title))")
-		mNowPlayingLabel.text = nowPlayingItem.title
+		mNowPlayingAlbumImage.image = nowPlayingArtworkImage
+		// get track title and artist name
+		guard let trackName: String = nowPlayingItem.title,
+			let trackArtist: String = nowPlayingItem.artist else {
+			print("error getting track and artist name")
+			return
+		}
+		mNowPlayingTrackLabel.text = trackName
+		mNowPlayingArtistLabel.text = trackArtist
 	}
 	
 	// Load Music playlists into container to populate collection views
@@ -575,8 +658,9 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		print("stopSomnusSession")
 		//print("\(mCountdownStr)")
 		//print("\(mAlarmStr)")
-		mIsSomnusSessionActive = false
+		//mIsSomnusSessionActive = false
 		mCountdownTimer?.invalidate()
+		mAlarmWakeTimer?.invalidate()
 		UIView.animate(withDuration: 0.5, animations: {
 			self.mSetUpContainerView.alpha = 1.0
 			self.mStartSomnusSessionButton.alpha = 1.0
@@ -594,6 +678,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	// Countdown timer target, update the current time interval
 	// and format/publish new interval to the UI
 	@objc func updateCountdown() {
+		// TODO: Make 'if let'
 		if mCountdownTimeInterval == nil {
 			return
 		}
@@ -607,12 +692,29 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			kSomnusUtils.formatSeconds(seconds: Double(mCountdownTimeInterval!))
 		self.mCountdownLabel.text = mCountdownStr
 		// lower volume
-		if mCountdownCurrentVolume  == nil || mCountdownVolumeStep == nil {
+		if mCurrentVolume  == nil || mCountdownVolumeStep == nil {
 			return
 		}
-		mCountdownCurrentVolume! -= mCountdownVolumeStep!
-		//print("new vol: \(mCountdownCurrentVolume!)")
-		changeVolume(new_volume: mCountdownCurrentVolume!)
+		mCurrentVolume! -= mCountdownVolumeStep!
+		print("new vol: \(mCurrentVolume!)")
+		changeVolume(new_volume: mCurrentVolume!)
+	}
+	
+	@objc func updateAlarmWake() {
+		if mAlarmWakeTimeInterval == nil {
+			return
+		}
+		if mAlarmWakeTimeInterval == 0.0 {
+			stopSomnusSession()
+			return
+		}
+		mAlarmWakeTimeInterval! -= 1.0
+		if mCurrentVolume  == nil || mCountdownVolumeStep == nil {
+			return
+		}
+		mCurrentVolume! += mAlarmWakeVolumeStep!
+		print("new vol alarm: \(mCurrentVolume!)")
+		changeVolume(new_volume: mCurrentVolume!)
 	}
 	
 	/***
@@ -620,13 +722,31 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	**/
 	
 	// Alert Error presentations
-	public func presentError(errorType: PlaylistError) {
+	public func presentPlaylistError(errorType: PlaylistError) {
 		var alert: UIAlertController?
 		switch errorType {
-		case PlaylistError.EmptyPlaylist:
-			alert = UIAlertController(title: "", message: "This playlist contains no songs", preferredStyle: UIAlertController.Style.alert)
-		case PlaylistError.PlaylistNotChosen:
-			alert = UIAlertController(title: "", message: "Playlist not chosen", preferredStyle: UIAlertController.Style.alert)
+		case PlaylistError.EmptyCountdownPlaylist:
+			let playlistName = mCountdownPlaylist?.name ?? ""
+			alert = UIAlertController(
+				title: "",
+				message: "Countdown playlist \(playlistName) contains no songs",
+				preferredStyle: UIAlertController.Style.alert)
+		case PlaylistError.CountdownPlaylistNotChosen:
+			alert = UIAlertController(
+				title: "",
+				message: "Countdown playlist not chosen",
+				preferredStyle: UIAlertController.Style.alert)
+		case PlaylistError.EmptyAlarmPlaylist:
+			let playlistName = mAlarmPlaylist?.name ?? ""
+			alert = UIAlertController(
+				title: "",
+				message: "Alarm playlist \(playlistName) contains no songs",
+				preferredStyle: UIAlertController.Style.alert)
+		case PlaylistError.AlarmPlaylistNotChosen:
+			alert = UIAlertController(
+				title: "",
+				message: "Alarm playlist not chosen",
+				preferredStyle: UIAlertController.Style.alert)
 		}
 		alert!.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
 		self.present(alert!, animated: true, completion: nil)
@@ -638,12 +758,19 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	
 	fileprivate let kSomnusUtils: SomnusUtils = SomnusUtils()
 	
-	fileprivate let mVolumeControlSlider =
-		MPVolumeView(frame: CGRect(x: -50, y: -50, width: 0, height: 0))
-	fileprivate let kCountdownStartVolume: Float = 0.10
+	fileprivate let kCountdownStartVolume: Float = 0.15
 	fileprivate let kCountdownEndVolume: Float = 0.01
 	fileprivate var mCountdownVolumeStep: Float?
-	fileprivate var mCountdownCurrentVolume: Float?
+	
+	fileprivate let kAlarmWakeStartVolume: Float = 0.085
+	fileprivate let kAlarmWakeEndVolume: Float = 0.255
+	fileprivate var mAlarmWakeTimeInterval: TimeInterval?
+	fileprivate var mAlarmWakeVolumeStep: Float?
+	fileprivate var mAlarmWakeTimer: Timer?
+	
+	fileprivate var mCurrentVolume: Float?
+	fileprivate let mVolumeControlSlider =
+		MPVolumeView(frame: CGRect(x: -50, y: -50, width: 0, height: 0))
 	fileprivate let mMPMediaPlayer: MPMusicPlayerApplicationController =
 		MPMusicPlayerApplicationController.applicationQueuePlayer
 	fileprivate var mMPMediaPlaylists: Array<MPMediaPlaylist> = Array<MPMediaPlaylist>()
@@ -666,7 +793,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	fileprivate var mCloudTimer3: Timer?
 	fileprivate var mCloudContainer: Array<UIImageView> = Array<UIImageView>()
 	
-	fileprivate var mIsSomnusSessionActive: Bool = false
+	//fileprivate var mIsSomnusSessionActive: Bool = false
 	
 	fileprivate var mCountdownStr: String = "00:00:00"
 	fileprivate var mCountdownTimeInterval: TimeInterval?
@@ -837,16 +964,50 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		return label
 	}()
 	
-	fileprivate let mNowPlayingLabel: UILabel = {
+	fileprivate let mNowPlayingContainerView: UIView = {
+		let view: UIView = UIView()
+		view.backgroundColor = UIColor.gray
+		view.translatesAutoresizingMaskIntoConstraints = false
+		return view
+	}()
+	
+	fileprivate let mNowPlayingAlbumImage: UIImageView = {
+		let view: UIImageView = UIImageView(image: UIImage(named: "artworkPlaceholder"))
+		view.translatesAutoresizingMaskIntoConstraints = false
+		return view
+	}()
+	
+	fileprivate let mNowPlayingTrackArtistStackView: UIStackView = {
+		let stackview: UIStackView = UIStackView()
+		stackview.axis = NSLayoutConstraint.Axis.vertical
+		stackview.distribution = UIStackView.Distribution.fillEqually
+		stackview.spacing = 0
+		stackview.translatesAutoresizingMaskIntoConstraints = false
+		return stackview
+	}()
+	
+	fileprivate let mNowPlayingTrackLabel: UILabel = {
 		let label: UILabel = UILabel()
-		label.isUserInteractionEnabled = true
-		label.text = "Now Playing"
+		label.text = "Track"
 		label.textColor = UIColor.white
-		label.backgroundColor = UIColor.gray
+		label.backgroundColor = UIColor.magenta
 		label.textAlignment = NSTextAlignment.center
 		label.numberOfLines = 1
 		label.lineBreakMode = NSLineBreakMode.byWordWrapping
-		label.font = UIFont(name: FONTNAME, size: 36)
+		label.font = UIFont(name: FONTNAME, size: 14)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
+	fileprivate let mNowPlayingArtistLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Artist"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.blue
+		label.textAlignment = NSTextAlignment.center
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAMEBOLD, size: 14)
 		label.translatesAutoresizingMaskIntoConstraints = false
 		return label
 	}()

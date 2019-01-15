@@ -89,6 +89,8 @@ enum InputError: Error {
 }
 
 enum PlaylistError: Error {
-	case EmptyPlaylist
-	case PlaylistNotChosen
+	case EmptyCountdownPlaylist
+	case EmptyAlarmPlaylist
+	case CountdownPlaylistNotChosen
+	case AlarmPlaylistNotChosen
 }
