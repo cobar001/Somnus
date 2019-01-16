@@ -21,6 +21,14 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+		print("screen: \(UIScreen.main.bounds)")
+		
+		if SCREENBOUNDS.height <= 700 {
+			mHasSmallerScreen = true
+		}
+		
+		print("has smaller screen: \(mHasSmallerScreen)")
+		
 		// Quick set up views, delegates (collection view), current playlists
 		// and navigation
 		registerDelegates()
@@ -40,11 +48,50 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		super.viewWillAppear(animated)
 		// TODO: Start timers here to they restart everytime the
 		// app returns to its running foreground state
+		print("view will appear")
+
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+		print("view did appear")
+		checkMediaPlayerPermissions()
+	}
+	
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
 	}
 	
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
 		// TODO: Reset cloud positions, deactivate timers,
+		print("view did disappear")
+
+	}
+	
+	fileprivate func checkMediaPlayerPermissions() {
+		MPMediaLibrary.requestAuthorization { (status: MPMediaLibraryAuthorizationStatus) in
+			if status == MPMediaLibraryAuthorizationStatus.denied ||
+				status == MPMediaLibraryAuthorizationStatus.restricted ||
+				status == MPMediaLibraryAuthorizationStatus.notDetermined {
+				print("media player access denied, restricted, or not determined")
+				DispatchQueue.main.async {
+					self.mStartSomnusSessionButton.isEnabled = false
+					let alert: UIAlertController = UIAlertController(
+						title: "Permissions Missing",
+						message: "Somnus doesn't have acccess to your Music library. Please go to Settings->Somnus and allow Somnus to access Media & Apple Music.",
+						preferredStyle: UIAlertController.Style.alert)
+					alert.addAction(UIAlertAction(title: "OK",
+												  style: UIAlertAction.Style.default,
+												  handler: nil))
+					self.present(alert, animated: true, completion: nil)
+				}
+			} else if status == MPMediaLibraryAuthorizationStatus.authorized {
+				print("media player access authorized")
+			} else {
+				print("media player access failed")
+			}
+		}
 	}
 
 	fileprivate func setUpNav() {
@@ -127,7 +174,11 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mSetUpContainerView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mSetUpContainerView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
 		mSetUpContainerView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
-		mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.75).isActive = true
+		if mHasSmallerScreen {
+			mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.68).isActive = true
+		} else {
+			mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.75).isActive = true
+		}
 		mSetUpContainerView.alpha = 1.0
 		
 		// Countdown Label and DatePicker StackView and Gestures
@@ -135,14 +186,22 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mCountdownExplanationLabel.topAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
 		mCountdownExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mCountdownExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mCountdownExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		if mHasSmallerScreen {
+			mCountdownExplanationLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+		} else {
+			mCountdownExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		}
 		
 		mSetUpContainerView.addSubview(mCountdownDatePicker)
 		mCountdownDatePicker.topAnchor.constraint(equalTo: mCountdownExplanationLabel.safeAreaLayoutGuide.bottomAnchor).isActive = true
 		mCountdownDatePicker.centerXAnchor.constraint(
 			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mCountdownDatePicker.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mCountdownDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		if mHasSmallerScreen {
+			mCountdownDatePicker.heightAnchor.constraint(equalToConstant: 75).isActive = true
+		} else {
+			mCountdownDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		}
 		// uidatepicker bugfix
 		var countdownDateComponents: DateComponents = DateComponents()
 		countdownDateComponents.hour = 0
@@ -160,7 +219,11 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mCountdownPlaylistExplanationLabel.topAnchor.constraint(equalTo: mCountdownDatePicker.safeAreaLayoutGuide.bottomAnchor).isActive = true
 		mCountdownPlaylistExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mCountdownPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mCountdownPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		if mHasSmallerScreen {
+			mCountdownPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+		} else {
+			mCountdownPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		}
 		
 		mSetUpContainerView.addSubview(mCountdownPlaylistsCollectionView)
 		mCountdownPlaylistsCollectionView.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
@@ -179,7 +242,11 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mAlarmPlaylistExplanationLabel.bottomAnchor.constraint(equalTo: mAlarmPlaylistsCollectionView.safeAreaLayoutGuide.topAnchor).isActive = true
 		mAlarmPlaylistExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mAlarmPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mAlarmPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		if mHasSmallerScreen {
+			mAlarmPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+		} else {
+			mAlarmPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		}
 		
 		// Alarm Label and DatePicker StackView and Gestures
 		mSetUpContainerView.addSubview(mAlarmDatePicker)
@@ -187,7 +254,11 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mAlarmDatePicker.centerXAnchor.constraint(
 			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mAlarmDatePicker.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mAlarmDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		if mHasSmallerScreen {
+			mAlarmDatePicker.heightAnchor.constraint(equalToConstant: 75).isActive = true
+		} else {
+			mAlarmDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		}
 		mAlarmStr = kSomnusUtils.formatDate(date: mAlarmDatePicker.date, calendar: mAlarmDatePicker.calendar)
 		mAlarmDate = mAlarmDatePicker.date
 		mAlarmCalendar = mAlarmDatePicker.calendar
@@ -196,14 +267,22 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mAlarmExplanationLabel.bottomAnchor.constraint(equalTo: mAlarmDatePicker.safeAreaLayoutGuide.topAnchor).isActive = true
 		mAlarmExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mAlarmExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mAlarmExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		if mHasSmallerScreen {
+			mAlarmExplanationLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+		} else {
+			mAlarmExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		}
 
 		// Somnus Session Container UIView
 		view.addSubview(mSomnusSessionContainerView)
 		mSomnusSessionContainerView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mSomnusSessionContainerView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
 		mSomnusSessionContainerView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
-		mSomnusSessionContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.6).isActive = true
+		if mHasSmallerScreen {
+			mSomnusSessionContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.67).isActive = true
+		} else {
+			mSomnusSessionContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.6).isActive = true
+		}
 		mSomnusSessionContainerView.alpha = 0.0
 
 		// Somnus Session Countdown, Now Playing, and Alarm Labels
@@ -756,7 +835,11 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	* User Interface Widgets
 	*/
 	
+	// TODO: Life cycle, finalize design,
+	// adhere to https://developer.apple.com/app-store/review/
+	
 	fileprivate let kSomnusUtils: SomnusUtils = SomnusUtils()
+	fileprivate var mHasSmallerScreen: Bool = false
 	
 	fileprivate let kCountdownStartVolume: Float = 0.15
 	fileprivate let kCountdownEndVolume: Float = 0.01
