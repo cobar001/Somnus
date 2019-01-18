@@ -9,6 +9,10 @@
 import UIKit
 import MediaPlayer
 
+	/***
+	* Utility Properties
+	*/
+
 let FONTNAME: String = "Avenir-Roman"
 let FONTNAMEBOLD: String = "Avenir-Heavy"
 
@@ -18,6 +22,10 @@ let PURPLECOLOR: UIColor = UIColor(red: 102/255, green: 51/255, blue: 153/255, a
 let ORANGECOLOR: UIColor = UIColor(red: 249/255, green: 105/255, blue: 14/255, alpha: 1.0)
 let SUNCOLOR: UIColor = UIColor(red: 238/255, green: 238/255, blue: 0, alpha: 1.0)
 let SUNRAYCOLOR: UIColor = UIColor(red: 247/255, green: 202/255, blue: 24/255, alpha: 1.0)
+
+	/***
+	* Utility Classes
+	*/
 
 class SomnusUtils {
 	public func generateRandomPositionWithBounds(
@@ -82,6 +90,10 @@ class SomnusUtils {
 	}
 }
 
+	/***
+	* Error Types
+	*/
+
 enum InputError: Error {
 	case InvalidInput
 	case NotEnoughInputParameters
@@ -93,4 +105,30 @@ enum PlaylistError: Error {
 	case EmptyAlarmPlaylist
 	case CountdownPlaylistNotChosen
 	case AlarmPlaylistNotChosen
+}
+
+	/***
+	* Extensions
+	*/
+
+extension UICollectionView {
+	
+	func setEmptyMessage(_ message: String) {
+		let messageLabel = UILabel(
+			frame: CGRect(x: 0, y: 0,
+						  width: self.bounds.size.width,
+						  height: self.bounds.size.height))
+		messageLabel.text = message
+		messageLabel.textColor = .black
+		messageLabel.numberOfLines = 0;
+		messageLabel.textAlignment = .center;
+		messageLabel.font = UIFont(name: FONTNAME, size: 18)
+		messageLabel.sizeToFit()
+		
+		self.backgroundView = messageLabel;
+	}
+	
+	func restore() {
+		self.backgroundView = nil
+	}
 }
