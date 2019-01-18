@@ -112,7 +112,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mMenuBackgroundPanGestureRecognizer.delegate = self
 		mMenuBackgroundTapGestureRecognizer.delegate = self
 	}
-	
+
 	fileprivate func setUpUI() {
 		// Add hidden volume slider
 		view.addSubview(mVolumeControlSlider);
@@ -179,7 +179,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		if mHasSmallerScreen {
 			mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.68).isActive = true
 		} else {
-			mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.75).isActive = true
+			mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.67).isActive = true
 		}
 		mSetUpContainerView.alpha = 1.0
 		
@@ -188,14 +188,34 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mCountdownExplanationLabel.topAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
 		mCountdownExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mCountdownExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mCountdownExplanationLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
+		if mHasSmallerScreen {
+			mCountdownExplanationLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+		} else {
+			mCountdownExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		}
 		
 		mSetUpContainerView.addSubview(mCountdownDatePicker)
 		mCountdownDatePicker.topAnchor.constraint(equalTo: mCountdownExplanationLabel.safeAreaLayoutGuide.bottomAnchor).isActive = true
 		mCountdownDatePicker.centerXAnchor.constraint(
 			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mCountdownDatePicker.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mCountdownDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		if mHasSmallerScreen {
+			mCountdownDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		} else {
+			mCountdownDatePicker.heightAnchor.constraint(equalToConstant: 125).isActive = true
+		}
+		
+		mSetUpContainerView.addSubview(mCountdownPlaylistChosenLabel)
+		mCountdownPlaylistChosenLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.centerXAnchor).isActive = true
+		mCountdownPlaylistChosenLabel.topAnchor.constraint(equalTo: mCountdownDatePicker.bottomAnchor).isActive = true
+		mCountdownPlaylistChosenLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.widthAnchor).isActive = true
+		mCountdownPlaylistChosenLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+		
+		mSetUpContainerView.addSubview(mCountdownPlaylistChosenInfoLabel)
+		mCountdownPlaylistChosenInfoLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.centerXAnchor).isActive = true
+		mCountdownPlaylistChosenInfoLabel.topAnchor.constraint(equalTo: mCountdownPlaylistChosenLabel.bottomAnchor).isActive = true
+		mCountdownPlaylistChosenInfoLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.widthAnchor).isActive = true
+		mCountdownPlaylistChosenInfoLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
 		
 		// uidatepicker bugfix
 		var countdownDateComponents: DateComponents = DateComponents()
@@ -210,12 +230,29 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mCountdownTimeInterval = mCountdownDatePicker.countDownDuration
 		
 		// Alarm Label and DatePicker StackView and Gestures
+		mSetUpContainerView.addSubview(mAlarmPlaylistChosenInfoLabel)
+		mAlarmPlaylistChosenInfoLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.centerXAnchor).isActive = true
+		mAlarmPlaylistChosenInfoLabel.bottomAnchor.constraint(equalTo: mSetUpContainerView.bottomAnchor).isActive = true
+		mAlarmPlaylistChosenInfoLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.widthAnchor).isActive = true
+		mAlarmPlaylistChosenInfoLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+		
+		mSetUpContainerView.addSubview(mAlarmPlaylistChosenLabel)
+		mAlarmPlaylistChosenLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.centerXAnchor).isActive = true
+		mAlarmPlaylistChosenLabel.bottomAnchor.constraint(equalTo: mAlarmPlaylistChosenInfoLabel.topAnchor).isActive = true
+		mAlarmPlaylistChosenLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.widthAnchor).isActive = true
+		mAlarmPlaylistChosenLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+		
 		mSetUpContainerView.addSubview(mAlarmDatePicker)
-		mAlarmDatePicker.bottomAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mAlarmDatePicker.bottomAnchor.constraint(
+			equalTo: mAlarmPlaylistChosenLabel.safeAreaLayoutGuide.topAnchor).isActive = true
 		mAlarmDatePicker.centerXAnchor.constraint(
 			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mAlarmDatePicker.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mAlarmDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		if mHasSmallerScreen {
+			mAlarmDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		} else {
+			mAlarmDatePicker.heightAnchor.constraint(equalToConstant: 125).isActive = true
+		}
 		mAlarmStr = kSomnusUtils.formatDate(date: mAlarmDatePicker.date, calendar: mAlarmDatePicker.calendar)
 		mAlarmDate = mAlarmDatePicker.date
 		mAlarmCalendar = mAlarmDatePicker.calendar
@@ -224,7 +261,11 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mAlarmExplanationLabel.bottomAnchor.constraint(equalTo: mAlarmDatePicker.safeAreaLayoutGuide.topAnchor).isActive = true
 		mAlarmExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mAlarmExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mAlarmExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		if mHasSmallerScreen {
+			mAlarmExplanationLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+		} else {
+			mAlarmExplanationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		}
 
 		// Somnus Session Container UIView
 		view.addSubview(mSomnusSessionContainerView)
@@ -278,9 +319,9 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		
 		view.addSubview(mMenuBackgroundView)
 		mMenuBackgroundView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mMenuBackgroundView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
 		mMenuBackgroundView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mMenuBackgroundView.heightAnchor.constraint(equalToConstant: SCREENBOUNDS.height).isActive = true
+		mMenuBackgroundView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+		mMenuBackgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
 		mMenuBackgroundPanGestureRecognizer = UIPanGestureRecognizer(
 			target: self, action: #selector(menuBackgroundPanned(sender:)))
 		mMenuBackgroundTapGestureRecognizer = UITapGestureRecognizer(
@@ -298,77 +339,98 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		mMenuView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
 		mMenuView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
 		mMenuLeftConstraint.constant = -mMenuWidthConstraint.constant
+
+		mMenuView.addSubview(mMenuContainerView)
+		mMenuContainerView.topAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+		mMenuContainerView.leftAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor).isActive = true
+		mMenuContainerView.rightAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.rightAnchor).isActive = true
+		mMenuContainerView.heightAnchor.constraint(equalToConstant: 650).isActive = true
 		
-		mMenuView.addSubview(mMenuOptionsLabel)
-		mMenuOptionsLabel.centerXAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mMenuOptionsLabel.topAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.topAnchor, constant: 16).isActive = true
-		mMenuOptionsLabel.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mMenuContainerView.addSubview(mMenuOptionsLabel)
+		mMenuOptionsLabel.centerXAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mMenuOptionsLabel.topAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+		mMenuOptionsLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mMenuOptionsLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
-		
-		mMenuView.addSubview(mMenuDividerLineView)
+
+		mMenuContainerView.addSubview(mMenuDividerLineView)
 		mMenuDividerLineView.centerXAnchor.constraint(
-			equalTo: mMenuView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mMenuDividerLineView.topAnchor.constraint(
 			equalTo: mMenuOptionsLabel.safeAreaLayoutGuide.bottomAnchor).isActive = true
-		mMenuDividerLineView.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+		mMenuDividerLineView.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
 		mMenuDividerLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
-		
-		mMenuView.addSubview(mMenuSleepVolumeLabel)
-		mMenuSleepVolumeLabel.leftAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+
+		mMenuContainerView.addSubview(mMenuSleepVolumeLabel)
+		mMenuSleepVolumeLabel.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
 		mMenuSleepVolumeLabel.topAnchor.constraint(equalTo: mMenuDividerLineView.safeAreaLayoutGuide.bottomAnchor, constant: 16).isActive = true
-		mMenuSleepVolumeLabel.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mMenuSleepVolumeLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		mMenuSleepVolumeLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
-		
-		mMenuView.addSubview(mMenuSleepVolumeSlider)
-		mMenuSleepVolumeSlider.centerXAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+
+		mMenuContainerView.addSubview(mMenuSleepVolumeSlider)
+		mMenuSleepVolumeSlider.centerXAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mMenuSleepVolumeSlider.topAnchor.constraint(equalTo: mMenuSleepVolumeLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mMenuSleepVolumeSlider.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+		mMenuSleepVolumeSlider.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
 		mMenuSleepVolumeSlider.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		sleepSliderDidChange(sender: mMenuSleepVolumeSlider)
-		
+
 		// Countdown Controls StackView
-		mMenuView.addSubview(mCountdownPlaylistExplanationLabel)
+		mMenuContainerView.addSubview(mCountdownPlaylistExplanationLabel)
 		mCountdownPlaylistExplanationLabel.topAnchor.constraint(equalTo: mMenuSleepVolumeSlider.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mCountdownPlaylistExplanationLabel.leftAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
-		mCountdownPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mCountdownPlaylistExplanationLabel.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mCountdownPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		mCountdownPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
-		
-		mMenuView.addSubview(mCountdownPlaylistsCollectionView)
-		mCountdownPlaylistsCollectionView.leftAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+
+		mMenuContainerView.addSubview(mCountdownPlaylistsCollectionView)
+		mCountdownPlaylistsCollectionView.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
 		mCountdownPlaylistsCollectionView.topAnchor.constraint(equalTo: mCountdownPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mCountdownPlaylistsCollectionView.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
-		mCountdownPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-		
-		mMenuView.addSubview(mMenuAlarmVolumeLabel)
-		mMenuAlarmVolumeLabel.leftAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mCountdownPlaylistsCollectionView.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		if mHasSmallerScreen {
+			mCountdownPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		} else {
+			mCountdownPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+		}
+
+		mMenuContainerView.addSubview(mMenuAlarmVolumeLabel)
+		mMenuAlarmVolumeLabel.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
 		mMenuAlarmVolumeLabel.topAnchor.constraint(equalTo: mCountdownPlaylistsCollectionView.safeAreaLayoutGuide.bottomAnchor, constant: 8).isActive = true
-		mMenuAlarmVolumeLabel.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mMenuAlarmVolumeLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		mMenuAlarmVolumeLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
-		
-		mMenuView.addSubview(mMenuAlarmVolumeSlider)
-		mMenuAlarmVolumeSlider.centerXAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+
+		mMenuContainerView.addSubview(mMenuAlarmVolumeSlider)
+		mMenuAlarmVolumeSlider.centerXAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mMenuAlarmVolumeSlider.topAnchor.constraint(equalTo: mMenuAlarmVolumeLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mMenuAlarmVolumeSlider.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+		mMenuAlarmVolumeSlider.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
 		mMenuAlarmVolumeSlider.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		alarmSliderDidChange(sender: mMenuAlarmVolumeSlider)
-		
+
 		// Alarm Controls StackView
-		mMenuView.addSubview(mAlarmPlaylistExplanationLabel)
+		mMenuContainerView.addSubview(mAlarmPlaylistExplanationLabel)
 		mAlarmPlaylistExplanationLabel.topAnchor.constraint(equalTo: mMenuAlarmVolumeSlider.safeAreaLayoutGuide.bottomAnchor).isActive = true
-		mAlarmPlaylistExplanationLabel.leftAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
-		mAlarmPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mAlarmPlaylistExplanationLabel.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mAlarmPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		mAlarmPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
-		
-		mMenuView.addSubview(mAlarmPlaylistsCollectionView)
-		mAlarmPlaylistsCollectionView.leftAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+
+		mMenuContainerView.addSubview(mAlarmPlaylistsCollectionView)
+		mAlarmPlaylistsCollectionView.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
 		mAlarmPlaylistsCollectionView.topAnchor.constraint(equalTo: mAlarmPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mAlarmPlaylistsCollectionView.widthAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
-		mAlarmPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-		
+		mAlarmPlaylistsCollectionView.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		if mHasSmallerScreen {
+			mAlarmPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+		} else {
+			mAlarmPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+			
+		}
+
 		mMenuScreenEdgePanGestureRecognizer = UIScreenEdgePanGestureRecognizer(
 			target: self, action: #selector(menuEdgeScreenPanned(sender:)))
 		mMenuScreenEdgePanGestureRecognizer.edges = UIRectEdge.left
 		view.addGestureRecognizer(mMenuScreenEdgePanGestureRecognizer)
+
+		mMenuContainerView.addSubview(mMenuPlaylistRefreshButton)
+		mMenuPlaylistRefreshButton.centerXAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mMenuPlaylistRefreshButton.topAnchor.constraint(equalTo: mAlarmPlaylistsCollectionView.bottomAnchor, constant: 16).isActive = true
+		mMenuPlaylistRefreshButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
+		mMenuPlaylistRefreshButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
 	}
 	
@@ -376,22 +438,23 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	// initialize sountdown steps based on
 	// kCountdownStartVolume/kCountdownEndVolume delta
 	fileprivate func initializeCountdownVolume() {
-		mCurrentVolume = kCountdownStartVolume
-		guard let countdownInterval: TimeInterval = mCountdownTimeInterval else {
-			print("countdown interval not set")
-			return
-		}
-		mCountdownVolumeStep = (kCountdownStartVolume - kCountdownEndVolume) / Float(countdownInterval)
+		mCurrentVolume = mCountdownVolume
+		//guard let countdownInterval: TimeInterval = mCountdownTimeInterval else {
+		//	print("countdown interval not set")
+		//	return
+		//}
+		//mCountdownVolumeStep = (kCountdownStartVolume - kCountdownEndVolume) / Float(countdownInterval)
 		changeVolume(new_volume: mCurrentVolume!)
 	}
 	
 	fileprivate func initializeAlarmVolume() {
-		mCurrentVolume = kAlarmWakeStartVolume
-		guard let countdownInterval: TimeInterval = mAlarmWakeTimeInterval else {
-			print("alarm interval not set")
-			return
-		}
-		mAlarmWakeVolumeStep = (kAlarmWakeEndVolume - kAlarmWakeStartVolume) / Float(countdownInterval)
+		mCurrentVolume = mAlarmWakeVolume
+		//guard let countdownInterval: TimeInterval = mAlarmWakeTimeInterval else {
+		//	print("alarm interval not set")
+		//	return
+		//}
+		//mAlarmWakeVolumeStep =
+		//	(kAlarmWakeEndVolume - kAlarmWakeStartVolume) / Float(countdownInterval)
 		changeVolume(new_volume: mCurrentVolume!)
 	}
 	
@@ -406,7 +469,13 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	
 	// Set both Countdown and Alarm Playlists count
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return mMPMediaPlaylists.count
+		let playlistsCount: Int = mMPMediaPlaylists.count
+		if (playlistsCount == 0) {
+			collectionView.setEmptyMessage("Please add Playlists to your Library")
+		} else {
+			collectionView.restore()
+		}
+		return playlistsCount
 	}
 	
 	// Set up both Countdown and Alarm Playlist cells
@@ -423,9 +492,23 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		let selectedPlaylist: MPMediaPlaylist = mMPMediaPlaylists[index]
 		if collectionView == mCountdownPlaylistsCollectionView {
 			mCountdownPlaylist = selectedPlaylist
+			mCountdownPlaylistChosenLabel.text = "Playlist: \(selectedPlaylist.name!)"
+			var playlistPlaybackTime: Double = 0.0
+			for mediaItem in selectedPlaylist.items {
+				playlistPlaybackTime += Double(mediaItem.playbackDuration)
+			}
+			mCountdownPlaylistChosenInfoLabel.text =
+				"Playlist duration: \(kSomnusUtils.formatSeconds(seconds: playlistPlaybackTime))"
 			print("countdown collectionview \(String(describing: mCountdownPlaylist?.name!))")
 		} else {
 			mAlarmPlaylist = selectedPlaylist
+			mAlarmPlaylistChosenLabel.text = "Playlist: \(selectedPlaylist.name!)"
+			var playlistPlaybackTime: Double = 0.0
+			for mediaItem in selectedPlaylist.items {
+				playlistPlaybackTime += Double(mediaItem.playbackDuration)
+			}
+			mAlarmPlaylistChosenInfoLabel.text =
+			"Playlist duration: \(kSomnusUtils.formatSeconds(seconds: playlistPlaybackTime))"
 			print("alarm collectionview \(String(describing: mAlarmPlaylist?.name!))")
 		}
 		
@@ -678,12 +761,14 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			mediaPlayer: mMPMediaPlayer, selectedPlaylist: mCountdownPlaylist)
 		// Set system volum to kCountdownStartVolume
 		initializeCountdownVolume()
+		mMenuScreenEdgePanGestureRecognizer.isEnabled = false
 		// Animate into the session
 		UIView.animate(withDuration: 0.5, animations: {
 			self.mSetUpContainerView.alpha = 0.0
 			self.mStartSomnusSessionButton.alpha = 0.0
 			self.mSomnusSessionContainerView.alpha = 1.0
 			self.mStopSomnusSessionButton.alpha = 1.0
+			self.mMenuButton.alpha = 0.0
 			UIScreen.main.brightness = CGFloat(0.01)
 		}) { (bool) in
 			print("start countdown animation done")
@@ -706,11 +791,13 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		//mIsSomnusSessionActive = false
 		mCountdownTimer?.invalidate()
 		mAlarmWakeTimer?.invalidate()
+		mMenuScreenEdgePanGestureRecognizer.isEnabled = true
 		UIView.animate(withDuration: 0.5, animations: {
 			self.mSetUpContainerView.alpha = 1.0
 			self.mStartSomnusSessionButton.alpha = 1.0
 			self.mSomnusSessionContainerView.alpha = 0.0
 			self.mStopSomnusSessionButton.alpha = 0.0
+			self.mMenuButton.alpha = 1.0
 			UIScreen.main.brightness = CGFloat(0.25)
 		}) { (bool) in
 			print("alarm animation done")
@@ -785,9 +872,9 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		} else {
 			// if the drag was less than half of it's width, close it. Otherwise, open it.
 			if mMenuLeftConstraint.constant < -mMenuWidthConstraint.constant / 2 {
-				self.hideMenu()
+				hideMenu()
 			} else {
-				self.openMenu()
+				openMenu()
 			}
 		}
 	}
@@ -833,11 +920,13 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	@objc func sleepSliderDidChange(sender: UISlider) {
 		let sliderVal: Int = Int((sender.value * 100).rounded())
 		mMenuSleepVolumeLabel.text = "Sleep Volume: \(sliderVal)%"
+		mCountdownVolume = sender.value
 	}
 	
 	@objc func alarmSliderDidChange(sender: UISlider) {
 		let sliderVal: Int = Int((sender.value * 100).rounded())
 		mMenuAlarmVolumeLabel.text = "Alarm Volume: \(sliderVal)%"
+		mAlarmWakeVolume = sender.value
 	}
 	
 	/***
@@ -948,12 +1037,12 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			kSomnusUtils.formatSeconds(seconds: Double(mCountdownTimeInterval!))
 		self.mCountdownLabel.text = mCountdownStr
 		// lower volume
-		if mCurrentVolume  == nil || mCountdownVolumeStep == nil {
-			return
-		}
-		mCurrentVolume! -= mCountdownVolumeStep!
+		//if mCurrentVolume  == nil || mCountdownVolumeStep == nil {
+		//	return
+		//}
+		//mCurrentVolume! -= mCountdownVolumeStep!
 		print("new vol: \(mCurrentVolume!)")
-		changeVolume(new_volume: mCurrentVolume!)
+		//changeVolume(new_volume: mCurrentVolume!)
 	}
 	
 	@objc func updateAlarmWake() {
@@ -965,14 +1054,20 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 			return
 		}
 		mAlarmWakeTimeInterval! -= 1.0
-		if mCurrentVolume  == nil || mCountdownVolumeStep == nil {
-			return
-		}
-		mCurrentVolume! += mAlarmWakeVolumeStep!
+		//if mCurrentVolume  == nil || mCountdownVolumeStep == nil {
+		//	return
+		//}
+		//mCurrentVolume! += mAlarmWakeVolumeStep!
 		print("new vol alarm: \(mCurrentVolume!)")
-		changeVolume(new_volume: mCurrentVolume!)
+		//changeVolume(new_volume: mCurrentVolume!)
 	}
 	
+	@objc func refreshPlaylists() {
+		updatePlaylists()
+		mCountdownPlaylistsCollectionView.reloadData()
+		mAlarmPlaylistsCollectionView.reloadData()
+	}
+
 	/***
 	* Error functions
 	**/
@@ -1012,21 +1107,23 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	* User Interface Widgets
 	*/
 	
-	// TODO: Life cycle, finalize design, handle case when there are no playlists,
+	// TODO: Life cycle,
+	// finalize design,
+	// need to clean up code,
 	// adhere to https://developer.apple.com/app-store/review/
 	
 	fileprivate let kSomnusUtils: SomnusUtils = SomnusUtils()
 	fileprivate var mHasSmallerScreen: Bool = false
 	fileprivate let kMaxMenuBackgroundAlpha: CGFloat = 0.75
 	
-	fileprivate let kCountdownStartVolume: Float = 0.15
-	fileprivate let kCountdownEndVolume: Float = 0.01
-	fileprivate var mCountdownVolumeStep: Float?
+	fileprivate var mCountdownVolume: Float = 0.25
+	//fileprivate let kCountdownEndVolume: Float = 0.01
+	//fileprivate var mCountdownVolumeStep: Float?
 	
-	fileprivate let kAlarmWakeStartVolume: Float = 0.085
-	fileprivate let kAlarmWakeEndVolume: Float = 0.255
+	fileprivate var mAlarmWakeVolume: Float = 0.25
+	//fileprivate let kAlarmWakeEndVolume: Float = 0.255
 	fileprivate var mAlarmWakeTimeInterval: TimeInterval?
-	fileprivate var mAlarmWakeVolumeStep: Float?
+	//fileprivate var mAlarmWakeVolumeStep: Float?
 	fileprivate var mAlarmWakeTimer: Timer?
 	
 	fileprivate var mCurrentVolume: Float?
@@ -1034,7 +1131,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		MPVolumeView(frame: CGRect(x: -50, y: -50, width: 0, height: 0))
 	fileprivate let mMPMediaPlayer: MPMusicPlayerApplicationController =
 		MPMusicPlayerApplicationController.applicationQueuePlayer
-	fileprivate var mMPMediaPlaylists: Array<MPMediaPlaylist> = Array<MPMediaPlaylist>()
+	public var mMPMediaPlaylists: Array<MPMediaPlaylist> = Array<MPMediaPlaylist>()
 	fileprivate var mCountdownPlaylist: MPMediaPlaylist?
 	fileprivate var mAlarmPlaylist: MPMediaPlaylist?
 
@@ -1099,6 +1196,14 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		return view
 	}()
 	
+	fileprivate let mMenuContainerView: UIView = {
+		let view: UIView = UIView()
+		view.backgroundColor = UIColor.orange
+		view.isUserInteractionEnabled = true
+		view.translatesAutoresizingMaskIntoConstraints = false
+		return view
+	}()
+	
 	fileprivate var mMenuLeftConstraint: NSLayoutConstraint!
 	fileprivate var mMenuWidthConstraint: NSLayoutConstraint!
 	fileprivate var mMenuScreenEdgePanGestureRecognizer: UIScreenEdgePanGestureRecognizer!
@@ -1151,7 +1256,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		slider.isContinuous = true
 		slider.minimumValue = 0.0
 		slider.maximumValue = 1.0
-		slider.setValue(0.2, animated: false)
+		slider.setValue(0.15, animated: false)
 		slider.addTarget(self,
 						 action: #selector(sleepSliderDidChange(sender:)),
 						 for: UIControl.Event.valueChanged)
@@ -1185,6 +1290,16 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		return slider
 	}()
 	
+	fileprivate let mMenuPlaylistRefreshButton: UIButton = {
+		let button: UIButton = UIButton(type: UIButton.ButtonType.custom)
+		button.backgroundColor = UIColor.gray
+		button.setImage(UIImage(named: "refresh"), for: UIControl.State.normal)
+		button.addTarget(self, action: #selector(refreshPlaylists),
+						 for: UIControl.Event.touchUpInside)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		return button
+	}()
+	
 	fileprivate let mSetUpContainerView: UIView = {
 		let view: UIView = UIView()
 		view.backgroundColor = UIColor.clear
@@ -1196,7 +1311,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	
 	fileprivate let mCountdownExplanationLabel: UILabel = {
 		let label: UILabel = UILabel()
-		label.text = "Choose music duration:"
+		label.text = "Sleep countdown duration:"
 		label.textColor = UIColor.white
 		label.backgroundColor = UIColor.magenta
 		label.textAlignment = NSTextAlignment.left
@@ -1219,6 +1334,32 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		return dp
 	}()
 	
+	fileprivate let mCountdownPlaylistChosenLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Playlist: Not Chosen"
+		label.textColor = UIColor.black
+		label.backgroundColor = UIColor.green
+		label.textAlignment = NSTextAlignment.left
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 14)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
+	fileprivate let mCountdownPlaylistChosenInfoLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Playlist duration: None"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.blue
+		label.textAlignment = NSTextAlignment.left
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 14)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
 	fileprivate let mCountdownPlaylistExplanationLabel: UILabel = {
 		let label: UILabel = UILabel()
 		label.text = "Sleep Playlist:"
@@ -1232,12 +1373,12 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		return label
 	}()
 	
-	fileprivate let mCountdownPlaylistsCollectionView: UICollectionView = {
+	public let mCountdownPlaylistsCollectionView: UICollectionView = {
 		let layout: UICollectionViewFlowLayout  = UICollectionViewFlowLayout()
 		let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
 		layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
 		layout.estimatedItemSize = CGSize(width: 1.0, height: 1.0)
-		layout.sectionInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
+		layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
 		collectionView.showsHorizontalScrollIndicator = false
 		collectionView.backgroundColor = UIColor.cyan
 		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
@@ -1247,7 +1388,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	
 	fileprivate let mAlarmExplanationLabel: UILabel = {
 		let label: UILabel = UILabel()
-		label.text = "Choose alarm time:"
+		label.text = "Alarm time:"
 		label.textColor = UIColor.white
 		label.backgroundColor = UIColor.magenta
 		label.textAlignment = NSTextAlignment.left
@@ -1270,6 +1411,32 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		return dp
 	}()
 	
+	fileprivate let mAlarmPlaylistChosenLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Playlist: Not Chosen"
+		label.textColor = UIColor.black
+		label.backgroundColor = UIColor.green
+		label.textAlignment = NSTextAlignment.left
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 14)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
+	fileprivate let mAlarmPlaylistChosenInfoLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Playlist duration: None"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.blue
+		label.textAlignment = NSTextAlignment.left
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 14)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
 	fileprivate let mAlarmPlaylistExplanationLabel: UILabel = {
 		let label: UILabel = UILabel()
 		label.text = "Alarm Playlist:"
@@ -1288,7 +1455,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 		let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
 		layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
 		layout.estimatedItemSize = CGSize(width: 1.0, height: 1.0)
-		layout.sectionInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
+		layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
 		collectionView.showsHorizontalScrollIndicator = false
 		collectionView.backgroundColor = UIColor.cyan
 		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
