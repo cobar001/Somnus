@@ -16,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2E54B45A21F52D4B00C2C0F7 /* Somnus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Somnus.entitlements; sourceTree = "<group>"; };
 		2EFB51AC21DC602000E9D9D4 /* Somnus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Somnus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EFB51AF21DC602000E9D9D4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2EFB51B621DC602200E9D9D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -56,6 +57,7 @@
 		2EFB51AE21DC602000E9D9D4 /* Somnus */ = {
 			isa = PBXGroup;
 			children = (
+				2E54B45A21F52D4B00C2C0F7 /* Somnus.entitlements */,
 				2EFB51AF21DC602000E9D9D4 /* AppDelegate.swift */,
 				2EFB51B621DC602200E9D9D4 /* Assets.xcassets */,
 				2EFB51B821DC602200E9D9D4 /* LaunchScreen.storyboard */,
@@ -101,6 +103,9 @@
 						CreatedOnToolsVersion = 10.1;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
+								enabled = 0;
+							};
+							com.apple.Push = {
 								enabled = 1;
 							};
 						};
@@ -283,6 +288,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Somnus/Somnus.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LW76959M9R;
 				INFOPLIST_FILE = Somnus/Info.plist;
@@ -302,6 +308,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Somnus/Somnus.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LW76959M9R;
 				INFOPLIST_FILE = Somnus/Info.plist;

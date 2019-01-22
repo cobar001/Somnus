@@ -21,11 +21,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>Play songs to fall asleep and wake up to</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>audio</string>
-	</array>
+	<string>Play playlists from your Library to fall asleep and wake up to.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Used in tandem with Speech Recognition tool to preocess voice commands.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Somnus will use this feature to enable and process voice commands.</string>
+	<key>UIApplicationExitsOnSuspend</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

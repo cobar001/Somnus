@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,8 +15,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	var mWindow: UIWindow?
 	var mSomnusViewController: SomnusViewController?
 	
+	
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
+		print("did finish loading")
+		
+		UIApplication.shared.isIdleTimerDisabled = true
 		
 		mWindow = UIWindow(frame: UIScreen.main.bounds)
 		mWindow?.backgroundColor = UIColor.darkGray
@@ -24,7 +29,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		let indexNavController = UINavigationController(rootViewController: mSomnusViewController!)
 		mWindow?.rootViewController = indexNavController
 		mWindow?.makeKeyAndVisible()
-
+		
+		//SomnusUtils.shared.mAudioRecorder?.delegate = mSomnusViewController
+		UNUserNotificationCenter.current().delegate = mSomnusViewController
+		SomnusUtils.shared.requestNotificationCenterAuthorization()
+		
 		return true
 	}
 
@@ -54,7 +63,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 		print("application will terminate")
 	}
-
-
 }
 
