@@ -123,7 +123,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mStartSomnusSessionButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
 		mStartSomnusSessionButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
 		mStartSomnusSessionButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
-		mStartSomnusSessionButton.alpha = 0.6
 		
 		view.addSubview(mStopSomnusSessionButton)
 		mStopSomnusSessionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
@@ -131,6 +130,20 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mStopSomnusSessionButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
 		mStopSomnusSessionButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
 		mStopSomnusSessionButton.alpha = 0.0
+		
+		view.addSubview(mSnoozeSomnusSessionButton)
+		mSnoozeSomnusSessionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+		mSnoozeSomnusSessionButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mSnoozeSomnusSessionButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
+		mSnoozeSomnusSessionButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
+		mSnoozeSomnusSessionButton.alpha = 0.0
+		
+		view.addSubview(mSnoozeLabel)
+		mSnoozeLabel.bottomAnchor.constraint(equalTo: mSnoozeSomnusSessionButton.safeAreaLayoutGuide.topAnchor, constant: -8).isActive = true
+		mSnoozeLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mSnoozeLabel.sizeToFit()
+		mSnoozeLabel.alpha = 0.0
+		mSnoozeLabel.text = SomnusUtils.shared.formatSeconds(seconds: 300)
 		
 		// Middle line temporary reference  UIView
 		view.addSubview(mMiddleLineView)
@@ -438,7 +451,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		let playlistsCount: Int = SomnusUtils.shared.mMPMediaPlaylists.count
 		if (playlistsCount == 0) {
-			collectionView.setEmptyMessage("Please add Playlists to your Library")
+			collectionView.setEmptyMessage("No playlists found")
 		} else {
 			collectionView.restore()
 		}
@@ -695,10 +708,12 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		print("notifications granted: \(SomnusUtils.shared.checkNotificationCenterPermissions())")
 		// Initialize session values
 		mIsSomnusSessionActive = true
+		mIsSomnusSessionSnoozing = false
 		mCountdownTimeInterval = mCountdownDatePicker.countDownDuration
 		mAlarmDate = mAlarmDatePicker.date
 		mAlarmCalendar = mAlarmDatePicker.calendar
-		mAlarmWakeTimeInterval = TimeInterval(exactly: 600.0)
+		mAlarmWakeTimeInterval = 600.0
+		SomnusUtils.shared.resetSpeechRecognitionResult()
 		// Safely retrieve optional members
 		guard let countdownTimeInterval: TimeInterval = mCountdownTimeInterval else {
 			print("countdown time interval nil")
@@ -763,7 +778,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			self.mSetUpContainerView.alpha = 0.0
 			self.mStartSomnusSessionButton.alpha = 0.0
 			self.mSomnusSessionContainerView.alpha = 1.0
-			self.mStopSomnusSessionButton.alpha = 0.6
+			self.mStopSomnusSessionButton.alpha = 1.0
 			self.mMenuButton.alpha = 0.0
 			UIScreen.main.brightness = CGFloat(0.01)
 		}) { (bool) in
@@ -785,20 +800,48 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mIsSomnusSessionActive = false
 		mCountdownTimer?.invalidate()
 		mAlarmWakeTimer?.invalidate()
+		mSnoozeTimer?.invalidate()
 		mMenuScreenEdgePanGestureRecognizer.isEnabled = true
 		UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
 		SomnusUtils.shared.stopSpeechRecognition()
+		SomnusUtils.shared.resetSpeechRecognitionResult()
 		UIView.animate(withDuration: 0.5, animations: {
 			self.mSetUpContainerView.alpha = 1.0
-			self.mStartSomnusSessionButton.alpha = 0.6
+			self.mStartSomnusSessionButton.alpha = 1.0
 			self.mSomnusSessionContainerView.alpha = 0.0
 			self.mStopSomnusSessionButton.alpha = 0.0
+			self.mSnoozeSomnusSessionButton.alpha = 0.0
+			self.mSnoozeLabel.alpha = 0.0
 			self.mMenuButton.alpha = 1.0
 			UIScreen.main.brightness = CGFloat(0.25)
 		}) { (bool) in
 			print("alarm animation done")
 			SomnusUtils.shared.stopPlaylist()
 		}
+	}
+	
+	@objc func snoozeSomnusSession() {
+		print("snoozeSomnusSession")
+//		if SomnusUtils.shared.getSpeechRecognitionResult() ==
+//			SpeechRecognitionResult.snooze {
+//			return
+//		}
+		if mIsSomnusSessionSnoozing {
+			return
+		}
+		mIsSomnusSessionSnoozing = true
+		mSnoozeTimeInterval = 300.0
+		mAlarmWakeTimeInterval += 300.0
+		if SomnusUtils.shared.kMPMediaPlayer.playbackState == MPMusicPlaybackState.playing {
+			SomnusUtils.shared.kMPMediaPlayer.pause()
+		}
+		UIView.animate(withDuration: 0.5) {
+			self.mSnoozeLabel.alpha = 1.0
+		}
+		mSnoozeTimer = Timer.scheduledTimer(timeInterval: 1.0,
+											target: self,
+											selector: #selector(self.updateSnooze),
+											userInfo: nil, repeats: true)
 	}
 	
 	// Menu Gesture and Button methods
@@ -942,6 +985,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}
 		let slider = sliderSubViews.first as? UISlider
 		slider?.setValue(new_volume, animated: false)
+		print("volume changed to: \(new_volume)")
 	}
 	
 	fileprivate func startAlarmTimer(alarmDate: Date, calendar: Calendar) {
@@ -972,6 +1016,9 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 				countdownTimer.invalidate()
 			}
 		}
+		UIView.animate(withDuration: 0.5, animations: {
+			self.mSnoozeSomnusSessionButton.alpha = 1.0
+		})
 		SomnusUtils.shared.kMPMediaPlayer.stop()
 		// Start the selected playlist with MPMediaPlayer
 		SomnusUtils.shared.startPlaylistContinuous(selectedPlaylist: mAlarmPlaylist)
@@ -1054,7 +1101,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mCountdownTimeInterval! -= 1.0
 		mCountdownStr = SomnusUtils.shared.formatSeconds(
 				seconds: Double(mCountdownTimeInterval!))
-		self.mCountdownLabel.text = mCountdownStr
+		mCountdownLabel.text = mCountdownStr
 		// lower volume
 //		if mCountdownVolumeStep == nil {
 //			return
@@ -1068,7 +1115,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	@objc func updateAlarmWake() {
 		if mAlarmWakeTimeInterval == 0.0 ||
-			SomnusUtils.shared.mCurrentSpeechRecognitionResult == .stop {
+			SomnusUtils.shared.getSpeechRecognitionResult() == .stop {
 			print("alarm done")
 			stopSomnusSession()
 			return
@@ -1082,14 +1129,37 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 					  "recording: \(error.localizedDescription)")
 			}
 		}
-		mAlarmWakeTimeInterval! -= 1.0
+		if SomnusUtils.shared.getSpeechRecognitionResult() == .snooze &&
+			!mIsSomnusSessionSnoozing {
+			snoozeSomnusSession()
+		}
+		mAlarmWakeTimeInterval -= 1.0
 //		if mCountdownVolumeStep == nil {
 //			return
 //		}
 //		SomnusUtils.shared.mCurrentVolume += mAlarmWakeVolumeStep!
-		print("alarm interval: \(mAlarmWakeTimeInterval!)")
+		print("alarm interval: \(mAlarmWakeTimeInterval)")
+		print("recognizing speech: \(SomnusUtils.shared.mIsSpeechRecognitionActive)")
 		//AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
 //		changeVolumeSlider(new_volume: SomnusUtils.shared.mCurrentVolume)
+	}
+	
+	@objc func updateSnooze() {
+		if mSnoozeTimeInterval == 0.0 {
+			if SomnusUtils.shared.kMPMediaPlayer.playbackState == MPMusicPlaybackState.paused {
+				SomnusUtils.shared.kMPMediaPlayer.play()
+			}
+			SomnusUtils.shared.resetSpeechRecognitionResult()
+			mSnoozeTimer?.invalidate()
+			mIsSomnusSessionSnoozing = false
+			UIView.animate(withDuration: 0.5) {
+				self.mSnoozeLabel.alpha = 0.0
+			}
+		}
+		mSnoozeTimeInterval -= 1.0
+		mSnoozeLabel.text = SomnusUtils.shared.formatSeconds(
+			seconds: Double(mSnoozeTimeInterval))
+		print("snooze time: \(mSnoozeTimeInterval)")
 	}
 	
 	@objc func refreshPlaylists() {
@@ -1166,9 +1236,10 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	fileprivate var mAlarmWakeVolume: Float = 0.20
 //	fileprivate let kAlarmWakeEndVolume: Float = 0.255
-	fileprivate var mAlarmWakeTimeInterval: TimeInterval?
+	fileprivate var mAlarmWakeTimeInterval: Double = 600.0
 //	fileprivate var mAlarmWakeVolumeStep: Float?
 	fileprivate var mAlarmWakeTimer: Timer?
+	fileprivate var mSnoozeTimeInterval: Double = 300.0
 	
 	fileprivate let mVolumeControlSlider =
 		MPVolumeView(frame: CGRect(x: -50, y: -50, width: 0, height: 0))
@@ -1194,7 +1265,8 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	fileprivate var mCloudTimer3: Timer?
 	fileprivate var mCloudContainer: Array<UIImageView> = Array<UIImageView>()
 	
-	fileprivate var mIsSomnusSessionActive: Bool = false
+	public var mIsSomnusSessionActive: Bool = false
+	public var mIsSomnusSessionSnoozing: Bool = false
 	
 	fileprivate var mCountdownStr: String = "00:00:00"
 	fileprivate var mCountdownTimeInterval: TimeInterval?
@@ -1204,6 +1276,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	fileprivate var mAlarmTimer: Timer?
 	fileprivate var mAlarmDate: Date?
 	fileprivate var mAlarmCalendar: Calendar?
+	fileprivate var mSnoozeTimer: Timer?
 	
 	fileprivate let mLocalNotificationContent: UNMutableNotificationContent = {
 		let content: UNMutableNotificationContent =
@@ -1348,11 +1421,11 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		button.setImage(image, for: UIControl.State.normal)
 		button.addTarget(self, action: #selector(refreshPlaylists),
 						 for: UIControl.Event.touchUpInside)
-		button.tintColor = UIColor.gray
+		button.tintColor = UIColor.black
 		button.backgroundColor = UIColor.clear
 		button.layer.cornerRadius = 20
 		button.clipsToBounds = true
-		button.layer.borderColor = UIColor.gray.cgColor
+		button.layer.borderColor = UIColor.black.cgColor
 		button.layer.borderWidth = 2
 		button.translatesAutoresizingMaskIntoConstraints = false
 		return button
@@ -1438,9 +1511,13 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
 		layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
 		layout.estimatedItemSize = CGSize(width: 1.0, height: 1.0)
-		layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
+		if SomnusUtils.shared.kHasSmallerScreen {
+			layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
+		} else {
+			layout.sectionInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
+		}
 		collectionView.showsHorizontalScrollIndicator = false
-		collectionView.backgroundColor = UIColor.cyan
+		collectionView.backgroundColor = UIColor.clear
 		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
 		collectionView.translatesAutoresizingMaskIntoConstraints = false
 		return collectionView
@@ -1517,9 +1594,13 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
 		layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
 		layout.estimatedItemSize = CGSize(width: 1.0, height: 1.0)
-		layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
+		if SomnusUtils.shared.kHasSmallerScreen {
+			layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
+		} else {
+			layout.sectionInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
+		}
 		collectionView.showsHorizontalScrollIndicator = false
-		collectionView.backgroundColor = UIColor.cyan
+		collectionView.backgroundColor = UIColor.clear
 		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
 		collectionView.translatesAutoresizingMaskIntoConstraints = false
 		return collectionView
@@ -1527,14 +1608,14 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	fileprivate let mStartSomnusSessionButton: UIButton = {
 		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
-		button.backgroundColor = UIColor.darkGray
+		button.backgroundColor = UIColor.clear
 		button.tintColor = UIColor.white
 		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
 		button.titleLabel?.textAlignment = NSTextAlignment.center
 		button.layer.cornerRadius = 35
 		button.clipsToBounds = true
-//		button.layer.borderColor = UIColor.white.cgColor
-//		button.layer.borderWidth = 2
+		button.layer.borderColor = UIColor.white.cgColor
+		button.layer.borderWidth = 2
 		button.setTitle("start", for: UIControl.State.normal)
 		button.addTarget(self, action: #selector(startSomnusSession),
 						 for: UIControl.Event.touchUpInside)
@@ -1637,16 +1718,47 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		return view
 	}()
 	
-	fileprivate let mStopSomnusSessionButton: UIButton = {
+	fileprivate let mSnoozeLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.isUserInteractionEnabled = true
+		label.text = "00:00:00"
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.clear
+		label.textAlignment = NSTextAlignment.center
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 12)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
+	
+	fileprivate let mSnoozeSomnusSessionButton: UIButton = {
 		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
-		button.backgroundColor = UIColor.darkGray
+		button.backgroundColor = UIColor.clear
 		button.tintColor = UIColor.white
 		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
 		button.titleLabel?.textAlignment = NSTextAlignment.center
 		button.layer.cornerRadius = 35
 		button.clipsToBounds = true
-//		button.layer.borderWidth = 2
-//		button.layer.borderColor = UIColor.white.cgColor
+		button.layer.borderWidth = 2
+		button.layer.borderColor = UIColor.white.cgColor
+		button.setTitle("snooze", for: UIControl.State.normal)
+		button.addTarget(self, action: #selector(snoozeSomnusSession),
+						 for: UIControl.Event.touchUpInside)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		return button
+	}()
+	
+	fileprivate let mStopSomnusSessionButton: UIButton = {
+		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
+		button.backgroundColor = UIColor.clear
+		button.tintColor = UIColor.white
+		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
+		button.titleLabel?.textAlignment = NSTextAlignment.center
+		button.layer.cornerRadius = 35
+		button.clipsToBounds = true
+		button.layer.borderWidth = 2
+		button.layer.borderColor = UIColor.white.cgColor
 		button.setTitle("stop", for: UIControl.State.normal)
 		button.addTarget(self, action: #selector(stopSomnusSession),
 						 for: UIControl.Event.touchUpInside)

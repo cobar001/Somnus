@@ -156,6 +156,7 @@ class SomnusUtils {
 	}
 	
 	// Speech recognition tools
+	
 	let kAudioEngine: AVAudioEngine = AVAudioEngine()
 	let kSpeechRecognizer: SFSpeechRecognizer =
 		SFSpeechRecognizer(locale: Locale(identifier: "en-US"))!
@@ -214,10 +215,12 @@ class SomnusUtils {
 			}
 			if error != nil {
 				// Stop recognizing speech if there is a problem.
+				print("error in recognition task")
 				self.kAudioEngine.stop()
 				inputNode.removeTap(onBus: 0)
 				self.mSpeechRecognitionRequest = nil
 				self.mSpeechRecognitionTask = nil
+				self.mIsSpeechRecognitionActive = false
 			}
 		}
 		// Configure the microphone input.
@@ -272,6 +275,14 @@ class SomnusUtils {
 			print("none")
 			mCurrentSpeechRecognitionResult = .none
 		}
+	}
+	
+	public func resetSpeechRecognitionResult() {
+		mCurrentSpeechRecognitionResult = .none
+	}
+	
+	public func getSpeechRecognitionResult() -> SpeechRecognitionResult {
+		return mCurrentSpeechRecognitionResult
 	}
 }
 

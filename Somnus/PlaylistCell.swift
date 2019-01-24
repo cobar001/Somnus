@@ -12,7 +12,6 @@ class PlaylistCell: UICollectionViewCell {
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
-		backgroundColor = UIColor.green
 		setUpUI()
 	}
 	
@@ -24,8 +23,7 @@ class PlaylistCell: UICollectionViewCell {
 		didSet {
 			if self.isSelected {
 				self.mPlaylistLabel.font = UIFont(name: FONTNAMEBOLD, size: 16)
-				self.mPlaylistLabel.layer.borderColor = UIColor.white.cgColor
-
+				self.mPlaylistLabel.layer.borderColor = UIColor.black.cgColor
 			}
 			else {
 				self.mPlaylistLabel.font = UIFont(name: FONTNAME, size: 18)
@@ -46,7 +44,7 @@ class PlaylistCell: UICollectionViewCell {
 		let label: UILabel = UILabel()
 		label.text = "playlist name"
 		label.textColor = UIColor.black
-		label.backgroundColor = UIColor.gray
+		label.backgroundColor = UIColor.clear
 		label.textAlignment = NSTextAlignment.center
 		label.numberOfLines = 1
 		label.lineBreakMode = NSLineBreakMode.byWordWrapping
