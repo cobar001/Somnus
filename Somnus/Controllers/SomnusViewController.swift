@@ -8,13 +8,12 @@
 
 import UIKit
 import MediaPlayer
-import UserNotifications
 import Speech
 import AudioToolbox
 
 class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	UICollectionViewDelegate, UICollectionViewDataSource,
-	UICollectionViewDelegateFlowLayout, UNUserNotificationCenterDelegate {
+	UICollectionViewDelegateFlowLayout {
 
 	deinit {
 		print("Remove NotificationCenter Deinit")
@@ -31,24 +30,25 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		setUpNav()
 		setUpUI()
 		registerDelegates()
+		
 		// Register ViewController to receive mediaplayer playback updates
 		NotificationCenter.default.addObserver(
 			self, selector: #selector(updateNowPlayingInfo),
 			name: NSNotification.Name.MPMusicPlayerControllerNowPlayingItemDidChange,
 			object: nil)
+		
+		// Ask for notification permissions to warn when app enter background.
+		if !SomnusUtils.shared.checkNotificationCenterPermissions() {
+			SomnusUtils.shared.requestNotificationCenterAuthorization()
+		}
     }
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		// TODO: Start timers here to they restart everytime the
-		// app returns to its running foreground state
-		print("view will appear")
-
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-		print("view did appear")
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
@@ -57,9 +57,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
-		// TODO: Reset cloud positions, deactivate timers,
-		print("view did disappear")
-
 	}
 
 	fileprivate func setUpNav() {
@@ -67,7 +64,8 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
 		self.navigationController?.navigationBar.shadowImage = UIImage()
 		self.navigationController?.navigationBar.isTranslucent = true
-		self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: UIBarButtonItem.Style.plain, target: nil, action: nil)
+		self.navigationItem.backBarButtonItem =
+			UIBarButtonItem(title: "", style: UIBarButtonItem.Style.plain, target: nil, action: nil)
 		self.navigationController?.isNavigationBarHidden = true
 	}
 	
@@ -79,8 +77,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mMenuScreenEdgePanGestureRecognizer.delegate = self
 		mMenuBackgroundPanGestureRecognizer.delegate = self
 		mMenuBackgroundTapGestureRecognizer.delegate = self
-//		mNotificationCenter.delegate = self
-//		SomnusUtils.shared.mAudioRecorder?.delegate = self
 	}
 
 	fileprivate func setUpUI() {
@@ -113,34 +109,46 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mMoonImageView.heightAnchor.constraint(equalToConstant: 70).isActive = true
 		
 		view.addSubview(mSunImageView)
-		mSunImageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
-		mSunImageView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16).isActive = true
+		mSunImageView.bottomAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+		mSunImageView.leftAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16).isActive = true
 		mSunImageView.widthAnchor.constraint(equalToConstant: 70).isActive = true
 		mSunImageView.heightAnchor.constraint(equalToConstant: 70).isActive = true
 		
+		
+		// Start, Stop, and Snooze buttons
 		view.addSubview(mStartSomnusSessionButton)
-		mStartSomnusSessionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
-		mStartSomnusSessionButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
+		mStartSomnusSessionButton.bottomAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+		mStartSomnusSessionButton.rightAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
 		mStartSomnusSessionButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
 		mStartSomnusSessionButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
 		
 		view.addSubview(mStopSomnusSessionButton)
-		mStopSomnusSessionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
-		mStopSomnusSessionButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
+		mStopSomnusSessionButton.bottomAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+		mStopSomnusSessionButton.rightAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
 		mStopSomnusSessionButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
 		mStopSomnusSessionButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
 		mStopSomnusSessionButton.alpha = 0.0
 		
 		view.addSubview(mSnoozeSomnusSessionButton)
-		mSnoozeSomnusSessionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
-		mSnoozeSomnusSessionButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mSnoozeSomnusSessionButton.bottomAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+		mSnoozeSomnusSessionButton.centerXAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mSnoozeSomnusSessionButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
 		mSnoozeSomnusSessionButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
 		mSnoozeSomnusSessionButton.alpha = 0.0
 		
 		view.addSubview(mSnoozeLabel)
-		mSnoozeLabel.bottomAnchor.constraint(equalTo: mSnoozeSomnusSessionButton.safeAreaLayoutGuide.topAnchor, constant: -8).isActive = true
-		mSnoozeLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mSnoozeLabel.bottomAnchor.constraint(
+			equalTo: mSnoozeSomnusSessionButton.safeAreaLayoutGuide.topAnchor, constant: -8).isActive = true
+		mSnoozeLabel.centerXAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mSnoozeLabel.sizeToFit()
 		mSnoozeLabel.alpha = 0.0
 		mSnoozeLabel.text = SomnusUtils.shared.formatSeconds(seconds: 300)
@@ -156,21 +164,29 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		
 		// Set Up Container UIView
 		view.addSubview(mSetUpContainerView)
-		mSetUpContainerView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mSetUpContainerView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
-		mSetUpContainerView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
+		mSetUpContainerView.centerXAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mSetUpContainerView.centerYAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mSetUpContainerView.widthAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
 		if SomnusUtils.shared.kHasSmallerScreen {
-			mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.68).isActive = true
+			mSetUpContainerView.heightAnchor.constraint(
+				equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.68).isActive = true
 		} else {
-			mSetUpContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.67).isActive = true
+			mSetUpContainerView.heightAnchor.constraint(
+				equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.67).isActive = true
 		}
 		mSetUpContainerView.alpha = 1.0
 		
 		// Countdown Label and DatePicker StackView and Gestures
 		mSetUpContainerView.addSubview(mCountdownExplanationLabel)
-		mCountdownExplanationLabel.topAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
-		mCountdownExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mCountdownExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownExplanationLabel.topAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
+		mCountdownExplanationLabel.centerXAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mCountdownExplanationLabel.widthAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		if SomnusUtils.shared.kHasSmallerScreen {
 			mCountdownExplanationLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
 		} else {
@@ -178,10 +194,12 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		}
 		
 		mSetUpContainerView.addSubview(mCountdownDatePicker)
-		mCountdownDatePicker.topAnchor.constraint(equalTo: mCountdownExplanationLabel.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mCountdownDatePicker.topAnchor.constraint(
+			equalTo: mCountdownExplanationLabel.safeAreaLayoutGuide.bottomAnchor).isActive = true
 		mCountdownDatePicker.centerXAnchor.constraint(
 			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mCountdownDatePicker.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownDatePicker.widthAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		if SomnusUtils.shared.kHasSmallerScreen {
 			mCountdownDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
 		} else {
@@ -189,15 +207,21 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		}
 		
 		mSetUpContainerView.addSubview(mCountdownPlaylistChosenLabel)
-		mCountdownPlaylistChosenLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.centerXAnchor).isActive = true
-		mCountdownPlaylistChosenLabel.topAnchor.constraint(equalTo: mCountdownDatePicker.bottomAnchor, constant: 8).isActive = true
-		mCountdownPlaylistChosenLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.widthAnchor).isActive = true
+		mCountdownPlaylistChosenLabel.centerXAnchor.constraint(
+			equalTo: mSetUpContainerView.centerXAnchor).isActive = true
+		mCountdownPlaylistChosenLabel.topAnchor.constraint(
+			equalTo: mCountdownDatePicker.bottomAnchor, constant: 8).isActive = true
+		mCountdownPlaylistChosenLabel.widthAnchor.constraint(
+			equalTo: mSetUpContainerView.widthAnchor).isActive = true
 		mCountdownPlaylistChosenLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
 		
 		mSetUpContainerView.addSubview(mCountdownPlaylistChosenInfoLabel)
-		mCountdownPlaylistChosenInfoLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.centerXAnchor).isActive = true
-		mCountdownPlaylistChosenInfoLabel.topAnchor.constraint(equalTo: mCountdownPlaylistChosenLabel.bottomAnchor).isActive = true
-		mCountdownPlaylistChosenInfoLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.widthAnchor).isActive = true
+		mCountdownPlaylistChosenInfoLabel.centerXAnchor.constraint(
+			equalTo: mSetUpContainerView.centerXAnchor).isActive = true
+		mCountdownPlaylistChosenInfoLabel.topAnchor.constraint(
+			equalTo: mCountdownPlaylistChosenLabel.bottomAnchor).isActive = true
+		mCountdownPlaylistChosenInfoLabel.widthAnchor.constraint(
+			equalTo: mSetUpContainerView.widthAnchor).isActive = true
 		mCountdownPlaylistChosenInfoLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
 		
 		// uidatepicker bugfix
@@ -214,15 +238,22 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		
 		// Alarm Label and DatePicker StackView and Gestures
 		mSetUpContainerView.addSubview(mAlarmPlaylistChosenInfoLabel)
-		mAlarmPlaylistChosenInfoLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.centerXAnchor).isActive = true
-		mAlarmPlaylistChosenInfoLabel.bottomAnchor.constraint(equalTo: mSetUpContainerView.bottomAnchor).isActive = true
-		mAlarmPlaylistChosenInfoLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.widthAnchor).isActive = true
-		mAlarmPlaylistChosenInfoLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+		mAlarmPlaylistChosenInfoLabel.centerXAnchor.constraint(
+			equalTo: mSetUpContainerView.centerXAnchor).isActive = true
+		mAlarmPlaylistChosenInfoLabel.bottomAnchor.constraint(
+			equalTo: mSetUpContainerView.bottomAnchor).isActive = true
+		mAlarmPlaylistChosenInfoLabel.widthAnchor.constraint(
+			equalTo: mSetUpContainerView.widthAnchor).isActive = true
+		mAlarmPlaylistChosenInfoLabel.heightAnchor.constraint(
+			equalToConstant: 20).isActive = true
 		
 		mSetUpContainerView.addSubview(mAlarmPlaylistChosenLabel)
-		mAlarmPlaylistChosenLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.centerXAnchor).isActive = true
-		mAlarmPlaylistChosenLabel.bottomAnchor.constraint(equalTo: mAlarmPlaylistChosenInfoLabel.topAnchor).isActive = true
-		mAlarmPlaylistChosenLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.widthAnchor).isActive = true
+		mAlarmPlaylistChosenLabel.centerXAnchor.constraint(
+			equalTo: mSetUpContainerView.centerXAnchor).isActive = true
+		mAlarmPlaylistChosenLabel.bottomAnchor.constraint(
+			equalTo: mAlarmPlaylistChosenInfoLabel.topAnchor).isActive = true
+		mAlarmPlaylistChosenLabel.widthAnchor.constraint(
+			equalTo: mSetUpContainerView.widthAnchor).isActive = true
 		mAlarmPlaylistChosenLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
 		
 		mSetUpContainerView.addSubview(mAlarmDatePicker)
@@ -230,7 +261,8 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			equalTo: mAlarmPlaylistChosenLabel.safeAreaLayoutGuide.topAnchor, constant: -8).isActive = true
 		mAlarmDatePicker.centerXAnchor.constraint(
 			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mAlarmDatePicker.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmDatePicker.widthAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		if SomnusUtils.shared.kHasSmallerScreen {
 			mAlarmDatePicker.heightAnchor.constraint(equalToConstant: 100).isActive = true
 		} else {
@@ -243,9 +275,12 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mAlarmCalendar = mAlarmDatePicker.calendar
 		
 		mSetUpContainerView.addSubview(mAlarmExplanationLabel)
-		mAlarmExplanationLabel.bottomAnchor.constraint(equalTo: mAlarmDatePicker.safeAreaLayoutGuide.topAnchor).isActive = true
-		mAlarmExplanationLabel.centerXAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mAlarmExplanationLabel.widthAnchor.constraint(equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmExplanationLabel.bottomAnchor.constraint(
+			equalTo: mAlarmDatePicker.safeAreaLayoutGuide.topAnchor).isActive = true
+		mAlarmExplanationLabel.centerXAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mAlarmExplanationLabel.widthAnchor.constraint(
+			equalTo: mSetUpContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		if SomnusUtils.shared.kHasSmallerScreen {
 			mAlarmExplanationLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
 		} else {
@@ -254,57 +289,82 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 
 		// Somnus Session Container UIView
 		view.addSubview(mSomnusSessionContainerView)
-		mSomnusSessionContainerView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mSomnusSessionContainerView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
-		mSomnusSessionContainerView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
-		mSomnusSessionContainerView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.67).isActive = true
+		mSomnusSessionContainerView.centerXAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mSomnusSessionContainerView.centerYAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mSomnusSessionContainerView.widthAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.75).isActive = true
+		mSomnusSessionContainerView.heightAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.67).isActive = true
 		mSomnusSessionContainerView.alpha = 0.0
 
 		// Somnus Session Countdown, Now Playing, and Alarm Labels
 		mSomnusSessionContainerView.addSubview(mNowPlayingContainerView)
-		mNowPlayingContainerView.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mNowPlayingContainerView.centerYAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerYAnchor).isActive = true
-		mNowPlayingContainerView.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+		mNowPlayingContainerView.centerXAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mNowPlayingContainerView.centerYAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mNowPlayingContainerView.widthAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
 		mNowPlayingContainerView.heightAnchor.constraint(equalToConstant: 200).isActive = true
 		
 		mNowPlayingContainerView.addSubview(mNowPlayingAlbumImage)
-		mNowPlayingAlbumImage.centerXAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mNowPlayingAlbumImage.topAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
-		mNowPlayingAlbumImage.heightAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.63).isActive = true
-		mNowPlayingAlbumImage.widthAnchor.constraint(equalTo: mNowPlayingAlbumImage.safeAreaLayoutGuide.heightAnchor).isActive = true
+		mNowPlayingAlbumImage.centerXAnchor.constraint(
+			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mNowPlayingAlbumImage.topAnchor.constraint(
+			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
+		mNowPlayingAlbumImage.heightAnchor.constraint(
+			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.63).isActive = true
+		mNowPlayingAlbumImage.widthAnchor.constraint(
+			equalTo: mNowPlayingAlbumImage.safeAreaLayoutGuide.heightAnchor).isActive = true
 		
 		mNowPlayingContainerView.addSubview(mNowPlayingTrackArtistStackView)
-		mNowPlayingTrackArtistStackView.centerXAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mNowPlayingTrackArtistStackView.bottomAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
-		mNowPlayingTrackArtistStackView.widthAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mNowPlayingTrackArtistStackView.heightAnchor.constraint(equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.33).isActive = true
+		mNowPlayingTrackArtistStackView.centerXAnchor.constraint(
+			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mNowPlayingTrackArtistStackView.bottomAnchor.constraint(
+			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mNowPlayingTrackArtistStackView.widthAnchor.constraint(
+			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mNowPlayingTrackArtistStackView.heightAnchor.constraint(
+			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.33).isActive = true
 		mNowPlayingTrackArtistStackView.addArrangedSubview(mNowPlayingTrackLabel)
 		mNowPlayingTrackArtistStackView.addArrangedSubview(mNowPlayingArtistLabel)
 		
 		// Somnus Session Countdown Label
 		mSomnusSessionContainerView.addSubview(mCountdownLabel)
-		mCountdownLabel.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mCountdownLabel.topAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
-		mCountdownLabel.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mCountdownLabel.centerXAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mCountdownLabel.topAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
+		mCountdownLabel.widthAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mCountdownLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
 		
 		// Somnus Session Alarm label
 		mSomnusSessionContainerView.addSubview(mAlarmLabel)
-		mAlarmLabel.centerXAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mAlarmLabel.bottomAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
-		mAlarmLabel.widthAnchor.constraint(equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mAlarmLabel.centerXAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mAlarmLabel.bottomAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mAlarmLabel.widthAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mAlarmLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
 	
 		// Add Menu/Menu Background views and button lastly
 		view.addSubview(mMenuButton)
-		mMenuButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16).isActive = true
-		mMenuButton.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16).isActive = true
+		mMenuButton.topAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16).isActive = true
+		mMenuButton.leftAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16).isActive = true
 		mMenuButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
 		mMenuButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
 		
 		view.addSubview(mMenuBackgroundView)
-		mMenuBackgroundView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mMenuBackgroundView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mMenuBackgroundView.centerXAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mMenuBackgroundView.widthAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mMenuBackgroundView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
 		mMenuBackgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
 		mMenuBackgroundPanGestureRecognizer = UIPanGestureRecognizer(
@@ -318,7 +378,8 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		
 		view.addSubview(mMenuView)
 		mMenuWidthConstraint = mMenuView.widthAnchor.constraint(equalToConstant: 250)
-		mMenuLeftConstraint = mMenuView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor)
+		mMenuLeftConstraint = mMenuView.leftAnchor.constraint(
+			equalTo: view.safeAreaLayoutGuide.leftAnchor)
 		mMenuWidthConstraint.isActive = true
 		mMenuLeftConstraint.isActive = true
 		mMenuView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
@@ -326,15 +387,21 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mMenuLeftConstraint.constant = -mMenuWidthConstraint.constant
 
 		mMenuView.addSubview(mMenuContainerView)
-		mMenuContainerView.topAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-		mMenuContainerView.leftAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor).isActive = true
-		mMenuContainerView.rightAnchor.constraint(equalTo: mMenuView.safeAreaLayoutGuide.rightAnchor).isActive = true
+		mMenuContainerView.topAnchor.constraint(
+			equalTo: mMenuView.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+		mMenuContainerView.leftAnchor.constraint(
+			equalTo: mMenuView.safeAreaLayoutGuide.leftAnchor).isActive = true
+		mMenuContainerView.rightAnchor.constraint(
+			equalTo: mMenuView.safeAreaLayoutGuide.rightAnchor).isActive = true
 		mMenuContainerView.heightAnchor.constraint(equalToConstant: 650).isActive = true
 		
 		mMenuContainerView.addSubview(mMenuOptionsLabel)
-		mMenuOptionsLabel.centerXAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mMenuOptionsLabel.topAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-		mMenuOptionsLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mMenuOptionsLabel.centerXAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mMenuOptionsLabel.topAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+		mMenuOptionsLabel.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
 		mMenuOptionsLabel.heightAnchor.constraint(equalToConstant: 75).isActive = true
 
 		mMenuContainerView.addSubview(mMenuDividerLineView)
@@ -342,33 +409,46 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mMenuDividerLineView.topAnchor.constraint(
 			equalTo: mMenuOptionsLabel.safeAreaLayoutGuide.bottomAnchor).isActive = true
-		mMenuDividerLineView.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+		mMenuDividerLineView.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
 		mMenuDividerLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
 
 		mMenuContainerView.addSubview(mMenuSleepVolumeLabel)
-		mMenuSleepVolumeLabel.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
-		mMenuSleepVolumeLabel.topAnchor.constraint(equalTo: mMenuDividerLineView.safeAreaLayoutGuide.bottomAnchor, constant: 16).isActive = true
-		mMenuSleepVolumeLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mMenuSleepVolumeLabel.leftAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mMenuSleepVolumeLabel.topAnchor.constraint(
+			equalTo: mMenuDividerLineView.safeAreaLayoutGuide.bottomAnchor, constant: 16).isActive = true
+		mMenuSleepVolumeLabel.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		mMenuSleepVolumeLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
 		mMenuContainerView.addSubview(mMenuSleepVolumeSlider)
-		mMenuSleepVolumeSlider.centerXAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mMenuSleepVolumeSlider.topAnchor.constraint(equalTo: mMenuSleepVolumeLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mMenuSleepVolumeSlider.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+		mMenuSleepVolumeSlider.centerXAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mMenuSleepVolumeSlider.topAnchor.constraint(
+			equalTo: mMenuSleepVolumeLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mMenuSleepVolumeSlider.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
 		mMenuSleepVolumeSlider.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		sleepSliderDidChange(sender: mMenuSleepVolumeSlider)
 
 		// Countdown Controls StackView
 		mMenuContainerView.addSubview(mCountdownPlaylistExplanationLabel)
-		mCountdownPlaylistExplanationLabel.topAnchor.constraint(equalTo: mMenuSleepVolumeSlider.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mCountdownPlaylistExplanationLabel.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
-		mCountdownPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mCountdownPlaylistExplanationLabel.topAnchor.constraint(
+			equalTo: mMenuSleepVolumeSlider.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mCountdownPlaylistExplanationLabel.leftAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mCountdownPlaylistExplanationLabel.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		mCountdownPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
 		mMenuContainerView.addSubview(mCountdownPlaylistsCollectionView)
-		mCountdownPlaylistsCollectionView.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
-		mCountdownPlaylistsCollectionView.topAnchor.constraint(equalTo: mCountdownPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mCountdownPlaylistsCollectionView.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mCountdownPlaylistsCollectionView.leftAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mCountdownPlaylistsCollectionView.topAnchor.constraint(
+			equalTo: mCountdownPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mCountdownPlaylistsCollectionView.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		if SomnusUtils.shared.kHasSmallerScreen {
 			mCountdownPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		} else {
@@ -376,29 +456,41 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		}
 
 		mMenuContainerView.addSubview(mMenuAlarmVolumeLabel)
-		mMenuAlarmVolumeLabel.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
-		mMenuAlarmVolumeLabel.topAnchor.constraint(equalTo: mCountdownPlaylistsCollectionView.safeAreaLayoutGuide.bottomAnchor, constant: 8).isActive = true
-		mMenuAlarmVolumeLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mMenuAlarmVolumeLabel.leftAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mMenuAlarmVolumeLabel.topAnchor.constraint(
+			equalTo: mCountdownPlaylistsCollectionView.safeAreaLayoutGuide.bottomAnchor, constant: 8).isActive = true
+		mMenuAlarmVolumeLabel.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		mMenuAlarmVolumeLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
 		mMenuContainerView.addSubview(mMenuAlarmVolumeSlider)
-		mMenuAlarmVolumeSlider.centerXAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mMenuAlarmVolumeSlider.topAnchor.constraint(equalTo: mMenuAlarmVolumeLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mMenuAlarmVolumeSlider.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+		mMenuAlarmVolumeSlider.centerXAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mMenuAlarmVolumeSlider.topAnchor.constraint(
+			equalTo: mMenuAlarmVolumeLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mMenuAlarmVolumeSlider.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
 		mMenuAlarmVolumeSlider.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		alarmSliderDidChange(sender: mMenuAlarmVolumeSlider)
 
 		// Alarm Controls StackView
 		mMenuContainerView.addSubview(mAlarmPlaylistExplanationLabel)
-		mAlarmPlaylistExplanationLabel.topAnchor.constraint(equalTo: mMenuAlarmVolumeSlider.safeAreaLayoutGuide.bottomAnchor).isActive = true
-		mAlarmPlaylistExplanationLabel.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
-		mAlarmPlaylistExplanationLabel.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mAlarmPlaylistExplanationLabel.topAnchor.constraint(
+			equalTo: mMenuAlarmVolumeSlider.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mAlarmPlaylistExplanationLabel.leftAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mAlarmPlaylistExplanationLabel.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		mAlarmPlaylistExplanationLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
 		mMenuContainerView.addSubview(mAlarmPlaylistsCollectionView)
-		mAlarmPlaylistsCollectionView.leftAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
-		mAlarmPlaylistsCollectionView.topAnchor.constraint(equalTo: mAlarmPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-		mAlarmPlaylistsCollectionView.widthAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+		mAlarmPlaylistsCollectionView.leftAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.leftAnchor, constant: 8).isActive = true
+		mAlarmPlaylistsCollectionView.topAnchor.constraint(
+			equalTo: mAlarmPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+		mAlarmPlaylistsCollectionView.widthAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
 		if SomnusUtils.shared.kHasSmallerScreen {
 			mAlarmPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		} else {
@@ -412,8 +504,10 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		view.addGestureRecognizer(mMenuScreenEdgePanGestureRecognizer)
 
 		mMenuContainerView.addSubview(mMenuPlaylistRefreshButton)
-		mMenuPlaylistRefreshButton.centerXAnchor.constraint(equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mMenuPlaylistRefreshButton.topAnchor.constraint(equalTo: mAlarmPlaylistsCollectionView.bottomAnchor, constant: 16).isActive = true
+		mMenuPlaylistRefreshButton.centerXAnchor.constraint(
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mMenuPlaylistRefreshButton.topAnchor.constraint(
+			equalTo: mAlarmPlaylistsCollectionView.bottomAnchor, constant: 16).isActive = true
 		mMenuPlaylistRefreshButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
 		mMenuPlaylistRefreshButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
@@ -424,22 +518,11 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	// kCountdownStartVolume/kCountdownEndVolume delta
 	fileprivate func initializeCountdownVolume() {
 		SomnusUtils.shared.mCurrentVolume = mCountdownVolume
-//		guard let countdownInterval: TimeInterval = mCountdownTimeInterval else {
-//			print("countdown interval not set")
-//			return
-//		}
-//		mCountdownVolumeStep = (kCountdownStartVolume - kCountdownEndVolume) / Float(countdownInterval)
 		changeVolumeSlider(new_volume: SomnusUtils.shared.mCurrentVolume)
 	}
 	
 	fileprivate func initializeAlarmVolume() {
 		SomnusUtils.shared.mCurrentVolume = mAlarmWakeVolume
-		//guard let countdownInterval: TimeInterval = mAlarmWakeTimeInterval else {
-		//	print("alarm interval not set")
-		//	return
-		//}
-		//mAlarmWakeVolumeStep =
-		//	(kAlarmWakeEndVolume - kAlarmWakeStartVolume) / Float(countdownInterval)
 		changeVolumeSlider(new_volume: SomnusUtils.shared.mCurrentVolume)
 	}
 	
@@ -459,8 +542,10 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	}
 	
 	// Set up both Countdown and Alarm Playlist cells
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let playlistCell: PlaylistCell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaylistCellID", for: indexPath) as! PlaylistCell
+	func collectionView(_ collectionView: UICollectionView,
+						cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+		let playlistCell: PlaylistCell = collectionView.dequeueReusableCell(
+			withReuseIdentifier: "PlaylistCellID", for: indexPath) as! PlaylistCell
 		playlistCell.mPlaylistLabel.text =
 			SomnusUtils.shared.mMPMediaPlaylists[indexPath.item].name
 		return playlistCell
@@ -493,12 +578,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			print("alarm collectionview \(String(describing: mAlarmPlaylist?.name!))")
 		}
 		
-	}
-	
-	func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-		print("ALARM NOTIFICATION")
-		alarmTimeReached()
-		completionHandler([.alert, .sound])
 	}
 	
 	/***
@@ -556,11 +635,17 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	// Start different timers to call @twinkleStar
 	fileprivate func startStarTwinkles() {
 		mStarTimer1 = Timer.scheduledTimer(
-			timeInterval: 1.0, target: self, selector: #selector(twinkleStar(sender:)), userInfo: ["number": 1], repeats: true)
+			timeInterval: 1.0, target: self,
+			selector: #selector(twinkleStar(sender:)),
+			userInfo: ["number": 1], repeats: true)
 		mStarTimer2 = Timer.scheduledTimer(
-			timeInterval: 1.25, target: self, selector: #selector(twinkleStar(sender:)), userInfo: ["number": 2], repeats: true)
+			timeInterval: 1.25, target: self,
+			selector: #selector(twinkleStar(sender:)),
+			userInfo: ["number": 2], repeats: true)
 		mStarTimer3 = Timer.scheduledTimer(
-			timeInterval: 1.5, target: self, selector: #selector(twinkleStar(sender:)), userInfo: ["number": 3], repeats: true)
+			timeInterval: 1.5, target: self,
+			selector: #selector(twinkleStar(sender:)),
+			userInfo: ["number": 3], repeats: true)
 	}
 	
 	// Start different timer to call @sunRaysAnimation
@@ -694,6 +779,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			mAlarmCalendar = sender.calendar
 			mAlarmStr = SomnusUtils.shared.formatDate(date: mAlarmDate!, calendar: mAlarmCalendar!)
 			print("\(mAlarmStr)")
+			print("\(mAlarmDate?.localizedDescription)")
 		} else {
 			print("datepicker mode not supported")
 		}
@@ -719,7 +805,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			print("countdown time interval nil")
 			return
 		}
-		guard let alarmDate: Date = mAlarmDate else {
+		guard var alarmDate: Date = mAlarmDate else {
 			print("alarm date nil")
 			return
 		}
@@ -727,6 +813,8 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			print("alarm calendar nil")
 			return
 		}
+		// Adjust date if it is tomorrow, earlier than now.
+		alarmDate = SomnusUtils.shared.getCorrectDate(date: alarmDate, calendar: alarmCal)
 		// Ensure playlist is selected/valid, otherwise present alert
 		if mCountdownPlaylist == nil {
 			presentPlaylistError(errorType: PlaylistError.CountdownPlaylistNotChosen)
@@ -802,7 +890,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mAlarmWakeTimer?.invalidate()
 		mSnoozeTimer?.invalidate()
 		mMenuScreenEdgePanGestureRecognizer.isEnabled = true
-		UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
 		SomnusUtils.shared.stopSpeechRecognition()
 		SomnusUtils.shared.resetSpeechRecognitionResult()
 		UIView.animate(withDuration: 0.5, animations: {
@@ -820,12 +907,11 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		}
 	}
 	
+	// Snooze Somnus Session, add time to alarm, pause media playback,
+	// start snooze timer, and update UI.
 	@objc func snoozeSomnusSession() {
 		print("snoozeSomnusSession")
-//		if SomnusUtils.shared.getSpeechRecognitionResult() ==
-//			SpeechRecognitionResult.snooze {
-//			return
-//		}
+		// Only progress of not already snoozing
 		if mIsSomnusSessionSnoozing {
 			return
 		}
@@ -845,8 +931,8 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	}
 	
 	// Menu Gesture and Button methods
+	
 	@objc func menuEdgeScreenPanned(sender: UIScreenEdgePanGestureRecognizer) {
-		//print("edge screen pan")
 		// retrieve the current state of the gesture
 		if sender.state == UIGestureRecognizer.State.began {
 			// if the user has just started dragging, make sure view for dimming effect is hidden well
@@ -993,21 +1079,13 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		let dateComponents: DateComponents =
 			calendar.dateComponents([.year, .month, .day, .hour, .minute], from: alarmDate)
 		let date: Date = calendar.date(from: dateComponents)!
+		print("date: \(date.localizedDescription)")
 		mAlarmTimer = Timer.init(
 			fireAt: date, interval: 0,
 			target: self,
 			selector: #selector(alarmTimeReached),
 			userInfo: nil, repeats: false)
 		RunLoop.main.add(mAlarmTimer!, forMode: RunLoop.Mode.common)
-//		print("date: \(dateComponents)")
-//		let trigger: UNCalendarNotificationTrigger =
-//			UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
-//		let request: UNNotificationRequest = UNNotificationRequest(identifier: "SomnusLocalNotification", content: mLocalNotificationContent, trigger: trigger)
-//		UNUserNotificationCenter.current().add(request) { (error) in
-//			if let error = error {
-//				print("Error: \(error.localizedDescription)")
-//			}
-//		}
 	}
 	
 	@objc func alarmTimeReached() {
@@ -1051,7 +1129,8 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		// get proper sized album artwork if valid
 		let nowPlayingArtworkSize: CGSize = CGSize(
 			width: mNowPlayingAlbumImage.bounds.width, height: mNowPlayingAlbumImage.bounds.height)
-		guard let nowPlayingArtworkImage: UIImage = nowPlayingItem.artwork?.image(at: nowPlayingArtworkSize) else {
+		guard let nowPlayingArtworkImage: UIImage =
+			nowPlayingItem.artwork?.image(at: nowPlayingArtworkSize) else {
 			print("error getting track artwork")
 			return
 		}
@@ -1080,9 +1159,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 				return
 			}
 			SomnusUtils.shared.mMPMediaPlaylists.append(p)
-			//print(playlist.value(forProperty: MPMediaPlaylistPropertyName)!)
 		}
-		//print("playlists: \(mMPMediaPlaylists.count)")
 	}
 	
 	// UI Update Targets
@@ -1090,36 +1167,35 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	// Countdown timer target, update the current time interval
 	// and format/publish new interval to the UI
 	@objc func updateCountdown() {
-		// TODO: Make 'if let'
 		print("update countdown")
+		// Stop countdown operations once interval
+		// has reached zero.
 		if mCountdownTimeInterval == 0.0 {
 			print("sleep playback done")
 			mCountdownTimer?.invalidate()
 			SomnusUtils.shared.stopPlaylist()
 			return
 		}
+		// Otherwise continue to decrement interval,
+		// and update UI.
 		mCountdownTimeInterval! -= 1.0
 		mCountdownStr = SomnusUtils.shared.formatSeconds(
 				seconds: Double(mCountdownTimeInterval!))
 		mCountdownLabel.text = mCountdownStr
-		// lower volume
-//		if mCountdownVolumeStep == nil {
-//			return
-//		}
-//		SomnusUtils.shared.mCurrentVolume -= mCountdownVolumeStep!
-//		print("new vol: \(SomnusUtils.shared.mCurrentVolume)")
-//		print("audio recording: \(SomnusUtils.shared.mAudioRecorder?.isRecording)")
 		print("countdown interval: \(mCountdownTimeInterval!)")
-//		changeVolumeSlider(new_volume: SomnusUtils.shared.mCurrentVolume)
 	}
 	
 	@objc func updateAlarmWake() {
+		// Stop Somnus session if end of alarm time interval
+		// reached, also stop on voice command result.
 		if mAlarmWakeTimeInterval == 0.0 ||
 			SomnusUtils.shared.getSpeechRecognitionResult() == .stop {
 			print("alarm done")
 			stopSomnusSession()
 			return
 		}
+		// Else, continue to ensure speech recognition is running and
+		// restart when Apple turns me off.
 		if !SomnusUtils.shared.mIsSpeechRecognitionActive &&
 			SomnusUtils.shared.checkSpeechRecognitionAuthorization() {
 			do {
@@ -1129,24 +1205,28 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 					  "recording: \(error.localizedDescription)")
 			}
 		}
+		// Check here for snooze commands, only if not already snoozing
 		if SomnusUtils.shared.getSpeechRecognitionResult() == .snooze &&
 			!mIsSomnusSessionSnoozing {
 			snoozeSomnusSession()
 		}
+		// Continue to decrement interval
 		mAlarmWakeTimeInterval -= 1.0
-//		if mCountdownVolumeStep == nil {
-//			return
-//		}
-//		SomnusUtils.shared.mCurrentVolume += mAlarmWakeVolumeStep!
 		print("alarm interval: \(mAlarmWakeTimeInterval)")
 		print("recognizing speech: \(SomnusUtils.shared.mIsSpeechRecognitionActive)")
-		//AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-//		changeVolumeSlider(new_volume: SomnusUtils.shared.mCurrentVolume)
+		// Vibrate if not snoozing
+		if SomnusUtils.shared.getSpeechRecognitionResult() != .snooze {
+			AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+		}
 	}
 	
+	// Snoozing update method
 	@objc func updateSnooze() {
 		if mSnoozeTimeInterval == 0.0 {
-			if SomnusUtils.shared.kMPMediaPlayer.playbackState == MPMusicPlaybackState.paused {
+			// Return alarm to alarm state upon the ending of the
+			// snoozing state
+			if SomnusUtils.shared.kMPMediaPlayer.playbackState ==
+				MPMusicPlaybackState.paused {
 				SomnusUtils.shared.kMPMediaPlayer.play()
 			}
 			SomnusUtils.shared.resetSpeechRecognitionResult()
@@ -1156,12 +1236,15 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 				self.mSnoozeLabel.alpha = 0.0
 			}
 		}
+		// Else, decrement time interval as normal and
+		// update UI
 		mSnoozeTimeInterval -= 1.0
 		mSnoozeLabel.text = SomnusUtils.shared.formatSeconds(
 			seconds: Double(mSnoozeTimeInterval))
 		print("snooze time: \(mSnoozeTimeInterval)")
 	}
 	
+	// Query playlists from Music Library and update UI
 	@objc func refreshPlaylists() {
 		updatePlaylists()
 		mCountdownPlaylistsCollectionView.reloadData()
@@ -1210,12 +1293,14 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		case PermissionsError.MissingMediaPermissions:
 			alert = UIAlertController(
 				title: "Permissions Missing",
-				message: "Somnus doesn't have acccess to your Music library. Please go to Settings->Somnus->Media & Apple Music, and enable Somnus to access playlists.",
+				message: "Somnus doesn't have acccess to your Music library. " +
+				"Please go to Settings->Somnus->Media & Apple Music, and enable Somnus to access playlists.",
 				preferredStyle: UIAlertController.Style.alert)
 		case PermissionsError.MissingNotificationsPermissions:
 			alert = UIAlertController(
 				title: "Permissions Missing",
-				message: "Somnus doesn't have permission to send notifications. Please go to Settings->Somnus->Allow Notifications, and enable Somnus to wake your phone with the the alarm.",
+				message: "Somnus doesn't have permission to send notifications. Please go to " +
+				"Settings->Somnus->Allow Notifications, and enable Somnus to wake your phone with the the alarm.",
 				preferredStyle: UIAlertController.Style.alert)
 		}
 		alert!.addAction(UIAlertAction(title: "OK",
@@ -1230,25 +1315,34 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	fileprivate let kMaxMenuBackgroundAlpha: CGFloat = 0.75
 	
+	public var mIsSomnusSessionActive: Bool = false
+	public var mIsSomnusSessionSnoozing: Bool = false
+	
 	fileprivate var mCountdownVolume: Float = 0.10
-//	fileprivate let kCountdownEndVolume: Float = 0.01
-//	fileprivate var mCountdownVolumeStep: Float?
+	fileprivate var mCountdownPlaylist: MPMediaPlaylist?
+	fileprivate var mCountdownStr: String = "00:00:00"
+	fileprivate var mCountdownTimeInterval: TimeInterval?
+	fileprivate var mCountdownTimer: Timer?
+
 	
 	fileprivate var mAlarmWakeVolume: Float = 0.20
-//	fileprivate let kAlarmWakeEndVolume: Float = 0.255
+	fileprivate var mAlarmPlaylist: MPMediaPlaylist?
+	fileprivate var mAlarmStr: String = "00:00 AM"
+	fileprivate var mAlarmTimer: Timer?
+	fileprivate var mAlarmDate: Date?
+	fileprivate var mAlarmCalendar: Calendar?
+	
 	fileprivate var mAlarmWakeTimeInterval: Double = 600.0
-//	fileprivate var mAlarmWakeVolumeStep: Float?
 	fileprivate var mAlarmWakeTimer: Timer?
+	
 	fileprivate var mSnoozeTimeInterval: Double = 300.0
+	fileprivate var mSnoozeTimer: Timer?
 	
 	fileprivate let mVolumeControlSlider =
 		MPVolumeView(frame: CGRect(x: -50, y: -50, width: 0, height: 0))
 	fileprivate let mDispatchBackgroundQueue =
 		DispatchQueue(label: "DispatchBackgroundQueue", qos: .background)
 	
-	fileprivate var mCountdownPlaylist: MPMediaPlaylist?
-	fileprivate var mAlarmPlaylist: MPMediaPlaylist?
-
 	fileprivate var mStarTimer1: Timer?
 	fileprivate var mStarTimer2: Timer?
 	fileprivate var mStarTimer3: Timer?
@@ -1264,26 +1358,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	fileprivate var mCloudTimer2: Timer?
 	fileprivate var mCloudTimer3: Timer?
 	fileprivate var mCloudContainer: Array<UIImageView> = Array<UIImageView>()
-	
-	public var mIsSomnusSessionActive: Bool = false
-	public var mIsSomnusSessionSnoozing: Bool = false
-	
-	fileprivate var mCountdownStr: String = "00:00:00"
-	fileprivate var mCountdownTimeInterval: TimeInterval?
-	fileprivate var mCountdownTimer: Timer?
-	
-	fileprivate var mAlarmStr: String = "00:00 AM"
-	fileprivate var mAlarmTimer: Timer?
-	fileprivate var mAlarmDate: Date?
-	fileprivate var mAlarmCalendar: Calendar?
-	fileprivate var mSnoozeTimer: Timer?
-	
-	fileprivate let mLocalNotificationContent: UNMutableNotificationContent = {
-		let content: UNMutableNotificationContent =
-			UNMutableNotificationContent()
-		content.title = "Time to wake up"
-		return content
-	}()
 	
 	fileprivate let mMiddleLineView: UIView = {
 		let view: UIView = UIView()
@@ -1434,8 +1508,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	fileprivate let mSetUpContainerView: UIView = {
 		let view: UIView = UIView()
 		view.backgroundColor = UIColor.clear
-		//view.layer.borderWidth = 2
-		//view.layer.borderColor = UIColor.black.cgColor
 		view.translatesAutoresizingMaskIntoConstraints = false
 		return view
 	}()
@@ -1767,15 +1839,14 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	}()
 	
 	fileprivate var mCloudOneImageView: UIImageView!
-	fileprivate let kCloudOneOrigin: CGRect = CGRect(x: -1000, y: 450, width: 115, height: 60)
-	fileprivate let kCloudOneTime: Int = 10
 	fileprivate var mCloudTwoImageView: UIImageView!
-	fileprivate let kCloudTwoOrigin: CGRect = CGRect(x: -1000, y: 400, width: 130, height: 90)
-	fileprivate let kCloudTwoTime: Int = 15
 	fileprivate var mCloudThreeImageView: UIImageView!
+	fileprivate let kCloudOneOrigin: CGRect = CGRect(x: -1000, y: 450, width: 115, height: 60)
+	fileprivate let kCloudTwoOrigin: CGRect = CGRect(x: -1000, y: 400, width: 130, height: 90)
 	fileprivate let kCloudThreeOrigin: CGRect = CGRect(x: -1000, y: 500, width: 110, height: 70)
+	fileprivate let kCloudOneTime: Int = 10
+	fileprivate let kCloudTwoTime: Int = 15
 	fileprivate let kCloudThreeTime: Int = 20
 	fileprivate let kMinCloudBound: CGFloat = SCREENBOUNDS.height / 2.0
 	fileprivate let kMaxCloudBound: CGFloat = (SCREENBOUNDS.height / 2.0) + 100.0
-	
 }

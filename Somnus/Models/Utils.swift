@@ -96,6 +96,7 @@ class SomnusUtils {
 	}
 	
 	// Utils
+	
 	public var kHasSmallerScreen: Bool = false
 	
 	public func generateRandomPositionWithBounds(
@@ -131,6 +132,21 @@ class SomnusUtils {
 			suffix = "PM"; hour = 12;
 		}
 		return String(format: "%02d:%02d %@", hour, minute, suffix)
+	}
+	
+	public func getCorrectDate(date: Date, calendar: Calendar) -> Date {
+		if date < Date() {
+			print("earlier date, set for tomorrow at this time")
+			if let datePlusDay: Date = calendar.date(byAdding: .day, value: 1, to: date) {
+				return datePlusDay
+			} else {
+				print("error correcting date")
+				return date
+			}
+		} else {
+			print("later date, set for later today at this time")
+			return date
+		}
 	}
 	
 	// Notification Tools
@@ -188,7 +204,10 @@ class SomnusUtils {
 	public func startSpeechRecognition() throws {
 		let audioSession: AVAudioSession = AVAudioSession.sharedInstance()
 		try audioSession.setCategory(
-			.playAndRecord, mode: .measurement, options: .mixWithOthers)
+			.playAndRecord, mode: .measurement, options: [.mixWithOthers,
+														  .allowBluetooth,
+														  .allowBluetoothA2DP,
+														  .defaultToSpeaker]) // check these
 		try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
 		let inputNode = kAudioEngine.inputNode
 
@@ -225,7 +244,8 @@ class SomnusUtils {
 		}
 		// Configure the microphone input.
 		let recordingFormat = inputNode.outputFormat(forBus: 0)
-		inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
+		inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) {
+			(buffer: AVAudioPCMBuffer, when: AVAudioTime) in
 			self.mSpeechRecognitionRequest?.append(buffer)
 		}
 		// Start the engine
@@ -286,17 +306,6 @@ class SomnusUtils {
 	}
 }
 
-class SomnusNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
-	
-	func userNotificationCenter(_ center: UNUserNotificationCenter,
-								willPresent notification: UNNotification,
-								withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-		// Play sound and show alert to the user
-		print("ALARM NOTIFICATION")
-		completionHandler([.alert,.sound])
-	}
-}
-
 	/***
 	* Error & Util Types
 	*/
@@ -345,5 +354,11 @@ extension UICollectionView {
 	
 	func restore() {
 		self.backgroundView = nil
+	}
+}
+
+extension Date {
+	var localizedDescription: String {
+		return description(with: .current)
 	}
 }

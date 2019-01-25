@@ -34,10 +34,14 @@ class PlaylistCell: UICollectionViewCell {
 	
 	func setUpUI() {
 		contentView.addSubview(mPlaylistLabel)
-		mPlaylistLabel.centerXAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mPlaylistLabel.centerYAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.centerYAnchor).isActive = true
-		mPlaylistLabel.widthAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mPlaylistLabel.heightAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.heightAnchor).isActive = true
+		mPlaylistLabel.centerXAnchor.constraint(
+			equalTo: contentView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mPlaylistLabel.centerYAnchor.constraint(
+			equalTo: contentView.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mPlaylistLabel.widthAnchor.constraint(
+			equalTo: contentView.safeAreaLayoutGuide.widthAnchor).isActive = true
+		mPlaylistLabel.heightAnchor.constraint(
+			equalTo: contentView.safeAreaLayoutGuide.heightAnchor).isActive = true
 	}
 	
 	let mPlaylistLabel: UILabel = {
