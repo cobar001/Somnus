@@ -14,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var mWindow: UIWindow?
 	var mSomnusViewController: SomnusViewController?
-	
+	var mOnBoardingPageViewController: PageOnBoardingPageViewController?
 	
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
@@ -25,15 +25,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		mWindow = UIWindow(frame: UIScreen.main.bounds)
 		mWindow?.backgroundColor = UIColor.darkGray
 		
+		mOnBoardingPageViewController = PageOnBoardingPageViewController()
 		mSomnusViewController = SomnusViewController()
-		let indexNavController = UINavigationController(rootViewController: mSomnusViewController!)
-		mWindow?.rootViewController = indexNavController
+		
+		// Check if first time launching app, if so, send to onboarding welcome.
+		let launchedBefore = UserDefaults.standard.bool(forKey: "launchedBefore")
+		if /*launchedBefore*/false  {
+			print("Not first launch.")
+			let indexNavController = UINavigationController(rootViewController: mSomnusViewController!)
+			mWindow?.rootViewController = indexNavController
+		} else {
+			print("First launch, setting UserDefault.")
+			UserDefaults.standard.set(true, forKey: "launchedBefore")
+			mWindow?.rootViewController = mOnBoardingPageViewController
+		}
 		mWindow?.makeKeyAndVisible()
-		
-		//SomnusUtils.shared.mAudioRecorder?.delegate = mSomnusViewController
-		UNUserNotificationCenter.current().delegate = mSomnusViewController
-		SomnusUtils.shared.requestNotificationCenterAuthorization()
-		
 		return true
 	}
 
