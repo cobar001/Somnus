@@ -73,8 +73,10 @@ class SomnusUtils {
 	
 	public func stopPlaylist() {
 		print("stop playing playlist")
-		kMPMediaPlayer.stop()
-		kMPMediaPlayer.endGeneratingPlaybackNotifications()
+		if kMPMediaPlayer.playbackState != MPMusicPlaybackState.stopped {
+			kMPMediaPlayer.stop()
+			//kMPMediaPlayer.endGeneratingPlaybackNotifications()
+		}
 	}
 	
 	public func checkMediaLibraryPermissions() -> Bool {

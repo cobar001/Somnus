@@ -779,7 +779,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			mAlarmCalendar = sender.calendar
 			mAlarmStr = SomnusUtils.shared.formatDate(date: mAlarmDate!, calendar: mAlarmCalendar!)
 			print("\(mAlarmStr)")
-			print("\(mAlarmDate?.localizedDescription)")
+			print("\(String(describing: mAlarmDate?.localizedDescription))")
 		} else {
 			print("datepicker mode not supported")
 		}
