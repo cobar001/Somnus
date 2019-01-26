@@ -517,13 +517,17 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	// initialize sountdown steps based on
 	// kCountdownStartVolume/kCountdownEndVolume delta
 	fileprivate func initializeCountdownVolume() {
+		print("current volume: \(SomnusUtils.shared.mCurrentVolume)")
+		print("countdown volume: \(mCountdownVolume)")
 		SomnusUtils.shared.mCurrentVolume = mCountdownVolume
-		changeVolumeSlider(new_volume: SomnusUtils.shared.mCurrentVolume)
+		changeVolume(new_volume: SomnusUtils.shared.mCurrentVolume)
 	}
 	
 	fileprivate func initializeAlarmVolume() {
+		print("current volume: \(SomnusUtils.shared.mCurrentVolume)")
+		print("alarm wake volume: \(mAlarmWakeVolume)")
 		SomnusUtils.shared.mCurrentVolume = mAlarmWakeVolume
-		changeVolumeSlider(new_volume: SomnusUtils.shared.mCurrentVolume)
+		changeVolume(new_volume: SomnusUtils.shared.mCurrentVolume)
 	}
 	
 	/***
@@ -1063,7 +1067,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	*/
 	
 	// Convenience function to adjust slider to desired volume value (0.0 - 1.0)
-	fileprivate func changeVolumeSlider(new_volume: Float) {
+	fileprivate func changeVolume(new_volume: Float) {
 		if new_volume < 0.0 || new_volume > 1.0 {
 			return
 		}
@@ -1168,6 +1172,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	// and format/publish new interval to the UI
 	@objc func updateCountdown() {
 		print("update countdown")
+		print("current volume: \(SomnusUtils.shared.mCurrentVolume)")
 		// Stop countdown operations once interval
 		// has reached zero.
 		if mCountdownTimeInterval == 0.0 {
@@ -1213,11 +1218,13 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		// Continue to decrement interval
 		mAlarmWakeTimeInterval -= 1.0
 		print("alarm interval: \(mAlarmWakeTimeInterval)")
+		print("is snoozing: \(mIsSomnusSessionSnoozing)")
+		print("current volume: \(SomnusUtils.shared.mCurrentVolume)")
 		print("recognizing speech: \(SomnusUtils.shared.mIsSpeechRecognitionActive)")
 		// Vibrate if not snoozing
-		if SomnusUtils.shared.getSpeechRecognitionResult() != .snooze {
-			AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-		}
+//		if !mIsSomnusSessionSnoozing {
+//			AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+//		}
 	}
 	
 	// Snoozing update method
@@ -1235,6 +1242,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			UIView.animate(withDuration: 0.5) {
 				self.mSnoozeLabel.alpha = 0.0
 			}
+			return
 		}
 		// Else, decrement time interval as normal and
 		// update UI
@@ -1742,7 +1750,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	fileprivate let mNowPlayingTrackLabel: UILabel = {
 		let label: UILabel = UILabel()
-		label.text = "Track"
+		label.text = ""
 		label.textColor = UIColor.white
 		label.backgroundColor = UIColor.clear
 		label.textAlignment = NSTextAlignment.center
@@ -1756,7 +1764,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	fileprivate let mNowPlayingArtistLabel: UILabel = {
 		let label: UILabel = UILabel()
-		label.text = "Artist"
+		label.text = ""
 		label.textColor = UIColor.white
 		label.backgroundColor = UIColor.clear
 		label.textAlignment = NSTextAlignment.center

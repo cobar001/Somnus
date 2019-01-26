@@ -59,7 +59,7 @@ class SomnusUtils {
 	public let kMPMediaPlayer: MPMusicPlayerApplicationController =
 		MPMusicPlayerApplicationController.applicationQueuePlayer
 	public var mMPMediaPlaylists: Array<MPMediaPlaylist> = Array<MPMediaPlaylist>()
-	public var mCurrentVolume: Float = 0.5
+	public var mCurrentVolume: Float = AVAudioSession.sharedInstance().outputVolume
 
 	public func startPlaylistContinuous(selectedPlaylist: MPMediaPlaylist?) {
 		guard let playlist: MPMediaPlaylist = selectedPlaylist else {
@@ -245,8 +245,7 @@ class SomnusUtils {
 			}
 		}
 		// Configure the microphone input.
-		let recordingFormat = inputNode.outputFormat(forBus: 0)
-		inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) {
+		inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputNode.outputFormat(forBus: 0)) {
 			(buffer: AVAudioPCMBuffer, when: AVAudioTime) in
 			self.mSpeechRecognitionRequest?.append(buffer)
 		}
@@ -305,6 +304,11 @@ class SomnusUtils {
 	
 	public func getSpeechRecognitionResult() -> SpeechRecognitionResult {
 		return mCurrentSpeechRecognitionResult
+	}
+	
+	// General Recording Tools
+	func startRecording() {
+		
 	}
 }
 

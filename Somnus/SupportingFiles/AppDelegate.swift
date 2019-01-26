@@ -21,6 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Override point for customization after application launch.
 		print("did finish loading")
 		
+		// prevent screen from going to sleep
 		UIApplication.shared.isIdleTimerDisabled = true
 		
 		mWindow = UIWindow(frame: UIScreen.main.bounds)
@@ -48,14 +49,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
 		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
 		print("application will resign active")
+		UIScreen.main.brightness = CGFloat(0.25)
+		pushEnteringBackgroundNotification()
 	}
 
 	func applicationDidEnterBackground(_ application: UIApplication) {
 		// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 		// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 		print("application did enter background")
-		AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-		pushEnteringBackgroundNotification()
 	}
 
 	func applicationWillEnterForeground(_ application: UIApplication) {
@@ -68,6 +69,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		print("application did become active")
 		if (mSomnusViewController?.mIsSomnusSessionActive)! {
 			UIScreen.main.brightness = CGFloat(0.01)
+		} else {
+			UIScreen.main.brightness = CGFloat(0.25)
 		}
 	}
 
@@ -79,17 +82,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func pushEnteringBackgroundNotification() {
 		guard let somnusVC = mSomnusViewController else { return }
 		if somnusVC.mIsSomnusSessionActive {
-			let notificationContent: UNMutableNotificationContent = UNMutableNotificationContent()
-			notificationContent.title = "App Entered Background"
-			notificationContent.body = "The alarm has been disabled. Please reset" +
-			" the alarm and be sure not to close the app."
-			let trigger: UNTimeIntervalNotificationTrigger =
-				UNTimeIntervalNotificationTrigger(timeInterval: 1.0, repeats: false)
-			let request: UNNotificationRequest = UNNotificationRequest(
-				identifier: "SomnusLocalNotification", content: notificationContent, trigger: trigger)
-			UNUserNotificationCenter.current().add(request) { (error) in
-				if let error = error {
-					print("Error: \(error.localizedDescription)")
+			AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+			if SomnusUtils.shared.checkNotificationCenterPermissions() {
+				let notificationContent: UNMutableNotificationContent = UNMutableNotificationContent()
+				notificationContent.title = "App Entered Background"
+				notificationContent.body = "The alarm has been disabled. Please reset" +
+				" the alarm and be sure not to close the app."
+				let trigger: UNTimeIntervalNotificationTrigger =
+					UNTimeIntervalNotificationTrigger(timeInterval: 1.0, repeats: false)
+				let request: UNNotificationRequest = UNNotificationRequest(
+					identifier: "SomnusLocalNotification", content: notificationContent, trigger: trigger)
+				UNUserNotificationCenter.current().add(request) { (error) in
+					if let error = error {
+						print("Error: \(error.localizedDescription)")
+					}
 				}
 			}
 		}
