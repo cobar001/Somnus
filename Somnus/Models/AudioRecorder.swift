@@ -38,8 +38,8 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
 		}
 	}
 	
-	public func startRecording() {
-		let audioFilename = SomnusUtils.shared.getDocumentsDirectory().appendingPathComponent("recording.m4a")
+	public func startRecording(filename: String) {
+		let audioFilename = SomnusUtils.shared.getDocumentsDirectory().appendingPathComponent("\(filename).m4a")
 		let settings = [
 			AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
 			AVSampleRateKey: 12000,
@@ -57,9 +57,11 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
 	}
 	
 	public func stopRecording() {
-		mAudioRecorder.stop()
-		mAudioRecorder = nil
-		print("recording stopped")
+		if mAudioRecorder != nil {
+			mAudioRecorder.stop()
+			mAudioRecorder = nil
+			print("recording stopped")
+		}
 	}
 	
 	public func audioRecorderIsrecording() -> Bool {

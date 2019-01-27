@@ -74,26 +74,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 		print("application will terminate")
 	}
-	
-	func pushEnteringBackgroundNotification() {
-		if SomnusUtils.shared.mSomnusSessionState == .active {
-			AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-			if SomnusUtils.shared.checkNotificationCenterPermissions() {
-				let notificationContent: UNMutableNotificationContent = UNMutableNotificationContent()
-				notificationContent.title = "App Entered Background"
-				notificationContent.body = "The alarm has been disabled. Please reset" +
-				" the alarm and be sure not to close the app."
-				let trigger: UNTimeIntervalNotificationTrigger =
-					UNTimeIntervalNotificationTrigger(timeInterval: 1.0, repeats: false)
-				let request: UNNotificationRequest = UNNotificationRequest(
-					identifier: "SomnusLocalNotification", content: notificationContent, trigger: trigger)
-				UNUserNotificationCenter.current().add(request) { (error) in
-					if let error = error {
-						print("Error: \(error.localizedDescription)")
-					}
-				}
-			}
-		}
-	}
 }
 

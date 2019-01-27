@@ -97,6 +97,17 @@ class SomnusUtils {
 		return paths[0]
 	}
 	
+	public func removeFilesFromDirectory(url: URL) {
+		do {
+			let fileURLs = try FileManager.default.contentsOfDirectory(
+				at: url, includingPropertiesForKeys: nil,
+				options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants])
+			for fileURL in fileURLs {
+				try FileManager.default.removeItem(at: fileURL)
+			}
+		} catch  { print("Error removing files: \(error)") }
+	}
+	
 	public func vibrate() {
 		kImpactFeedbackGenerator.impactOccurred()
 	}
@@ -126,10 +137,28 @@ class SomnusUtils {
 		}
 		return !isTypeEmpty
 	}
+
+	public func pushNotification(title: String, body: String) {
+		SomnusUtils.shared.vibrate()
+		if SomnusUtils.shared.checkNotificationCenterPermissions() {
+			let notificationContent: UNMutableNotificationContent = UNMutableNotificationContent()
+			notificationContent.title = title
+			notificationContent.body = body
+			let trigger: UNTimeIntervalNotificationTrigger =
+				UNTimeIntervalNotificationTrigger(timeInterval: 1.0, repeats: false)
+			let request: UNNotificationRequest = UNNotificationRequest(
+				identifier: "SomnusLocalNotification", content: notificationContent, trigger: trigger)
+			UNUserNotificationCenter.current().add(request) { (error) in
+				if let error = error {
+					print("Error: \(error.localizedDescription)")
+				}
+			}
+		}
+	}
 }
 
 enum SomnusSessionState {
-	case active, inactive, alarmWake
+	case active, inactive, alarmWake, snoozed
 }
 
 	/***
