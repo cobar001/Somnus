@@ -13,6 +13,9 @@
 		2E54B46221FA5FCD00C2C0F7 /* WelcomePageThreeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B46121FA5FCD00C2C0F7 /* WelcomePageThreeViewController.swift */; };
 		2E54B46921FA78C000C2C0F7 /* WelcomePageFourViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B46821FA78C000C2C0F7 /* WelcomePageFourViewController.swift */; };
 		2E54B46B21FAD49400C2C0F7 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E54B46A21FAD49400C2C0F7 /* Launch Screen.storyboard */; };
+		2E54B46D21FE164900C2C0F7 /* MediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B46C21FE164800C2C0F7 /* MediaPlayer.swift */; };
+		2E54B46F21FE221700C2C0F7 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B46E21FE221700C2C0F7 /* SpeechRecognizer.swift */; };
+		2E54B47121FE26EB00C2C0F7 /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B47021FE26EB00C2C0F7 /* AudioRecorder.swift */; };
 		2EFB51B021DC602000E9D9D4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFB51AF21DC602000E9D9D4 /* AppDelegate.swift */; };
 		2EFB51B721DC602200E9D9D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EFB51B621DC602200E9D9D4 /* Assets.xcassets */; };
 		2EFB51C221DD249800E9D9D4 /* SomnusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFB51C121DD249800E9D9D4 /* SomnusViewController.swift */; };
@@ -28,6 +31,9 @@
 		2E54B46121FA5FCD00C2C0F7 /* WelcomePageThreeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomePageThreeViewController.swift; sourceTree = "<group>"; };
 		2E54B46821FA78C000C2C0F7 /* WelcomePageFourViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomePageFourViewController.swift; sourceTree = "<group>"; };
 		2E54B46A21FAD49400C2C0F7 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		2E54B46C21FE164800C2C0F7 /* MediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlayer.swift; sourceTree = "<group>"; };
+		2E54B46E21FE221700C2C0F7 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
+		2E54B47021FE26EB00C2C0F7 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		2EFB51AC21DC602000E9D9D4 /* Somnus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Somnus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EFB51AF21DC602000E9D9D4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2EFB51B621DC602200E9D9D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -74,6 +80,9 @@
 			children = (
 				2EFB51C521DD2A1B00E9D9D4 /* Utils.swift */,
 				2EFB51C921E588D400E9D9D4 /* PlaylistCell.swift */,
+				2E54B46C21FE164800C2C0F7 /* MediaPlayer.swift */,
+				2E54B46E21FE221700C2C0F7 /* SpeechRecognizer.swift */,
+				2E54B47021FE26EB00C2C0F7 /* AudioRecorder.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -158,7 +167,7 @@
 						CreatedOnToolsVersion = 10.1;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
-								enabled = 0;
+								enabled = 1;
 							};
 							com.apple.Push = {
 								enabled = 1;
@@ -204,13 +213,16 @@
 			files = (
 				2EFB51B021DC602000E9D9D4 /* AppDelegate.swift in Sources */,
 				2E54B46921FA78C000C2C0F7 /* WelcomePageFourViewController.swift in Sources */,
+				2E54B46F21FE221700C2C0F7 /* SpeechRecognizer.swift in Sources */,
 				2EFB51C221DD249800E9D9D4 /* SomnusViewController.swift in Sources */,
 				2E54B45C21FA4E6400C2C0F7 /* PageOnBoardingPageViewController.swift in Sources */,
 				2EFB51C621DD2A1B00E9D9D4 /* Utils.swift in Sources */,
+				2E54B47121FE26EB00C2C0F7 /* AudioRecorder.swift in Sources */,
 				2E54B45E21FA4E9400C2C0F7 /* WelcomePageOneViewController.swift in Sources */,
 				2EFB51CA21E588D400E9D9D4 /* PlaylistCell.swift in Sources */,
 				2E54B46021FA4ECB00C2C0F7 /* WelcomePageTwoViewController.swift in Sources */,
 				2E54B46221FA5FCD00C2C0F7 /* WelcomePageThreeViewController.swift in Sources */,
+				2E54B46D21FE164900C2C0F7 /* MediaPlayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

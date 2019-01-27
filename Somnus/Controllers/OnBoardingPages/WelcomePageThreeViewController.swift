@@ -21,7 +21,7 @@ class WelcomePageThreeViewController: UIViewController {
 		view.addSubview(mImageView)
 		mImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
 		mImageView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor).isActive = true
-		if SomnusUtils.shared.kHasSmallerScreen {
+		if SomnusUtils.shared.hasSmallerScreen() {
 			mImageView.widthAnchor.constraint(equalToConstant: 621 * 0.49).isActive = true
 			mImageView.heightAnchor.constraint(equalToConstant: 1344 * 0.49).isActive = true
 		} else {

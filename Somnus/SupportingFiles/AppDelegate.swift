@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		print("did finish loading")
 		
 		// prevent screen from going to sleep
-		UIApplication.shared.isIdleTimerDisabled = true
+		//UIApplication.shared.isIdleTimerDisabled = true
 		
 		mWindow = UIWindow(frame: UIScreen.main.bounds)
 		mWindow?.backgroundColor = UIColor.darkGray
@@ -49,8 +49,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
 		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
 		print("application will resign active")
-		UIScreen.main.brightness = CGFloat(0.25)
-		pushEnteringBackgroundNotification()
 	}
 
 	func applicationDidEnterBackground(_ application: UIApplication) {
@@ -61,17 +59,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func applicationWillEnterForeground(_ application: UIApplication) {
 		// Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-		print("application will enter background")
+		print("application will enter foreground")
+		if SomnusUtils.shared.mSomnusSessionState == .alarmWake {
+			MediaPlayer.shared.playFromPausePlaylist()
+		}
 	}
 
 	func applicationDidBecomeActive(_ application: UIApplication) {
 		// Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 		print("application did become active")
-		if (mSomnusViewController?.mIsSomnusSessionActive)! {
-			UIScreen.main.brightness = CGFloat(0.01)
-		} else {
-			UIScreen.main.brightness = CGFloat(0.25)
-		}
 	}
 
 	func applicationWillTerminate(_ application: UIApplication) {
@@ -80,8 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	}
 	
 	func pushEnteringBackgroundNotification() {
-		guard let somnusVC = mSomnusViewController else { return }
-		if somnusVC.mIsSomnusSessionActive {
+		if SomnusUtils.shared.mSomnusSessionState == .active {
 			AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
 			if SomnusUtils.shared.checkNotificationCenterPermissions() {
 				let notificationContent: UNMutableNotificationContent = UNMutableNotificationContent()
