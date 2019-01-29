@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E23151521FEC1E400833590 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E23151421FEC1E400833590 /* AudioPlayer.swift */; };
+		2E23151921FED05700833590 /* Lalala.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 2E23151821FEC29400833590 /* Lalala.m4a */; };
+		2E23151D2200196A00833590 /* SweetbutPsycho.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 2E23151C2200195C00833590 /* SweetbutPsycho.m4a */; };
+		2E23151F22002FFE00833590 /* Body.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 2E23151E22002FFE00833590 /* Body.m4a */; };
 		2E54B45C21FA4E6400C2C0F7 /* PageOnBoardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B45B21FA4E6400C2C0F7 /* PageOnBoardingPageViewController.swift */; };
 		2E54B45E21FA4E9400C2C0F7 /* WelcomePageOneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B45D21FA4E9400C2C0F7 /* WelcomePageOneViewController.swift */; };
 		2E54B46021FA4ECB00C2C0F7 /* WelcomePageTwoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B45F21FA4ECB00C2C0F7 /* WelcomePageTwoViewController.swift */; };
@@ -24,6 +28,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2E23151421FEC1E400833590 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
+		2E23151821FEC29400833590 /* Lalala.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Lalala.m4a; sourceTree = "<group>"; };
+		2E23151C2200195C00833590 /* SweetbutPsycho.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = SweetbutPsycho.m4a; sourceTree = "<group>"; };
+		2E23151E22002FFE00833590 /* Body.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Body.m4a; sourceTree = "<group>"; };
 		2E54B45A21F52D4B00C2C0F7 /* Somnus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Somnus.entitlements; sourceTree = "<group>"; };
 		2E54B45B21FA4E6400C2C0F7 /* PageOnBoardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageOnBoardingPageViewController.swift; sourceTree = "<group>"; };
 		2E54B45D21FA4E9400C2C0F7 /* WelcomePageOneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomePageOneViewController.swift; sourceTree = "<group>"; };
@@ -54,6 +62,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2E23151721FEC28100833590 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				2E23151821FEC29400833590 /* Lalala.m4a */,
+				2E23151E22002FFE00833590 /* Body.m4a */,
+				2E23151C2200195C00833590 /* SweetbutPsycho.m4a */,
+			);
+			path = Sounds;
+			sourceTree = "<group>";
+		};
 		2E54B46321FA61E400C2C0F7 /* OnBoardingPages */ = {
 			isa = PBXGroup;
 			children = (
@@ -83,6 +101,7 @@
 				2E54B46C21FE164800C2C0F7 /* MediaPlayer.swift */,
 				2E54B46E21FE221700C2C0F7 /* SpeechRecognizer.swift */,
 				2E54B47021FE26EB00C2C0F7 /* AudioRecorder.swift */,
+				2E23151421FEC1E400833590 /* AudioPlayer.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -125,6 +144,7 @@
 		2EFB51AE21DC602000E9D9D4 /* Somnus */ = {
 			isa = PBXGroup;
 			children = (
+				2E23151721FEC28100833590 /* Sounds */,
 				2E54B46721FA623C00C2C0F7 /* SupportingFiles */,
 				2E54B46621FA622D00C2C0F7 /* Views */,
 				2E54B46421FA620500C2C0F7 /* Controllers */,
@@ -199,8 +219,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2E23151D2200196A00833590 /* SweetbutPsycho.m4a in Resources */,
+				2E23151921FED05700833590 /* Lalala.m4a in Resources */,
 				2E54B46B21FAD49400C2C0F7 /* Launch Screen.storyboard in Resources */,
 				2EFB51B721DC602200E9D9D4 /* Assets.xcassets in Resources */,
+				2E23151F22002FFE00833590 /* Body.m4a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,6 +245,7 @@
 				2EFB51CA21E588D400E9D9D4 /* PlaylistCell.swift in Sources */,
 				2E54B46021FA4ECB00C2C0F7 /* WelcomePageTwoViewController.swift in Sources */,
 				2E54B46221FA5FCD00C2C0F7 /* WelcomePageThreeViewController.swift in Sources */,
+				2E23151521FEC1E400833590 /* AudioPlayer.swift in Sources */,
 				2E54B46D21FE164900C2C0F7 /* MediaPlayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

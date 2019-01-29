@@ -97,6 +97,17 @@ class SomnusUtils {
 		return paths[0]
 	}
 	
+	public func getURLBundlePathForFile(filename: String, ext: String) -> URL? {
+		var resultURL: URL?
+		if let path = Bundle.main.url(forResource: filename, withExtension: ext) {
+			print("found bundle file")
+			resultURL = path
+		} else {
+			print("bundle file not found: \(filename).\(ext)")
+		}
+		return resultURL
+	}
+	
 	public func removeFilesFromDirectory(url: URL) {
 		do {
 			let fileURLs = try FileManager.default.contentsOfDirectory(
@@ -114,6 +125,10 @@ class SomnusUtils {
 	
 	public func hasSmallerScreen() -> Bool {
 		return kHasSmallerScreen
+	}
+	
+	public func getFilesInBundleWithExtension(ext: String) {
+		
 	}
 	
 	// Notification Tools

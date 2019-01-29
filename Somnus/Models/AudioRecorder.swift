@@ -20,10 +20,14 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
 	private let mRecordingSession: AVAudioSession = AVAudioSession.sharedInstance()
 	private var mAudioRecorder: AVAudioRecorder!
 	
-	public func initAndRequestRecorderAuthorization() {
-		do {
-			try mRecordingSession.setCategory(.playAndRecord, mode: .default)
-			try mRecordingSession.setActive(true)
+	public func printRecorderChannels() {
+		if mAudioRecorder != nil {
+			print("channels: \(String(describing: mAudioRecorder.channelAssignments))")
+		}
+	}
+	
+	public func requestRecordAuthorization() {
+		if mRecordingSession.recordPermission != .granted {
 			mRecordingSession.requestRecordPermission() { allowed in
 				DispatchQueue.main.async {
 					if allowed {
@@ -33,27 +37,39 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
 					}
 				}
 			}
-		} catch {
-			print("error requesting Record authorization and initialization")
 		}
 	}
 	
-	public func startRecording(filename: String) {
+	public func initRecorder(filename: String) {
+		do {
+			try mRecordingSession.setCategory(.playAndRecord, mode: .default)
+			try mRecordingSession.setActive(true)
+		} catch {
+			print("error initializing recorder")
+		}
 		let audioFilename = SomnusUtils.shared.getDocumentsDirectory().appendingPathComponent("\(filename).m4a")
 		let settings = [
 			AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-			AVSampleRateKey: 12000,
-			AVNumberOfChannelsKey: 1,
+			AVSampleRateKey: 44100,
+			AVNumberOfChannelsKey: 2,
 			AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
 		]
 		do {
 			mAudioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
 			mAudioRecorder.delegate = self
-			mAudioRecorder.record()
-			print("recording started")
+			
 		} catch {
 			stopRecording()
 		}
+	}
+	
+	public func startRecording(timeOffset: TimeInterval?) {
+		if let time: TimeInterval = timeOffset {
+			mAudioRecorder.record(atTime: time)
+		} else {
+			mAudioRecorder.record()
+		}
+		print("recording started")
 	}
 	
 	public func stopRecording() {
@@ -77,5 +93,6 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
 			print("recording failed (delegate)")
 			stopRecording()
 		}
+		print("finished recording delegate")
 	}
 }
