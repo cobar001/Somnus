@@ -139,6 +139,24 @@ class SpeechRecognizer {
 		}
 	}
 	
+	public func startSpeechRecognitionOfFile(url: URL) {
+		if !kSpeechRecognizer.isAvailable {
+			return
+		}
+		let request = SFSpeechURLRecognitionRequest(url: url)
+		kSpeechRecognizer.recognitionTask(with: request) { (result, error) in
+			guard let result = result else {
+				// Recognition failed, so check error for details and handle it
+				print("speech request failed")
+				return
+			}
+			// Print the speech that has been recognized so far
+			if result.isFinal {
+				print("transcipt: \(result.bestTranscription.formattedString)")
+			}
+		}
+	}
+	
 	public func resetSpeechRecognitionResult() {
 		mCurrentSpeechRecognitionResult = .none
 	}

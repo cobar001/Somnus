@@ -20,8 +20,6 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>Play playlists from your Library to fall asleep and wake up to.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Used in tandem with Speech Recognition tool to preocess voice commands.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

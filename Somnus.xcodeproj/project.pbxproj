@@ -7,10 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		19A3DD6BA7C0577471DD53F9 /* Pods_Somnus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3078C7CD88D509804AECBCD /* Pods_Somnus.framework */; };
 		2E23151521FEC1E400833590 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E23151421FEC1E400833590 /* AudioPlayer.swift */; };
 		2E23151921FED05700833590 /* Lalala.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 2E23151821FEC29400833590 /* Lalala.m4a */; };
 		2E23151D2200196A00833590 /* SweetbutPsycho.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 2E23151C2200195C00833590 /* SweetbutPsycho.m4a */; };
 		2E23151F22002FFE00833590 /* Body.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 2E23151E22002FFE00833590 /* Body.m4a */; };
+		2E23152122012F9F00833590 /* PreviousSessionPreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E23152022012F9F00833590 /* PreviousSessionPreviewViewController.swift */; };
+		2E23152322016E4C00833590 /* her.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 2E23152222016E4C00833590 /* her.m4a */; };
 		2E54B45C21FA4E6400C2C0F7 /* PageOnBoardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B45B21FA4E6400C2C0F7 /* PageOnBoardingPageViewController.swift */; };
 		2E54B45E21FA4E9400C2C0F7 /* WelcomePageOneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B45D21FA4E9400C2C0F7 /* WelcomePageOneViewController.swift */; };
 		2E54B46021FA4ECB00C2C0F7 /* WelcomePageTwoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E54B45F21FA4ECB00C2C0F7 /* WelcomePageTwoViewController.swift */; };
@@ -28,10 +31,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		208D1A51379E47AD6DE38209 /* Pods-Somnus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Somnus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Somnus/Pods-Somnus.debug.xcconfig"; sourceTree = "<group>"; };
 		2E23151421FEC1E400833590 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		2E23151821FEC29400833590 /* Lalala.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Lalala.m4a; sourceTree = "<group>"; };
 		2E23151C2200195C00833590 /* SweetbutPsycho.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = SweetbutPsycho.m4a; sourceTree = "<group>"; };
 		2E23151E22002FFE00833590 /* Body.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Body.m4a; sourceTree = "<group>"; };
+		2E23152022012F9F00833590 /* PreviousSessionPreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviousSessionPreviewViewController.swift; sourceTree = "<group>"; };
+		2E23152222016E4C00833590 /* her.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = her.m4a; sourceTree = "<group>"; };
 		2E54B45A21F52D4B00C2C0F7 /* Somnus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Somnus.entitlements; sourceTree = "<group>"; };
 		2E54B45B21FA4E6400C2C0F7 /* PageOnBoardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageOnBoardingPageViewController.swift; sourceTree = "<group>"; };
 		2E54B45D21FA4E9400C2C0F7 /* WelcomePageOneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomePageOneViewController.swift; sourceTree = "<group>"; };
@@ -49,6 +55,8 @@
 		2EFB51C121DD249800E9D9D4 /* SomnusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SomnusViewController.swift; sourceTree = "<group>"; };
 		2EFB51C521DD2A1B00E9D9D4 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		2EFB51C921E588D400E9D9D4 /* PlaylistCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistCell.swift; sourceTree = "<group>"; };
+		72AC58DD0988EE2C221B7CEF /* Pods-Somnus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Somnus.release.xcconfig"; path = "Pods/Target Support Files/Pods-Somnus/Pods-Somnus.release.xcconfig"; sourceTree = "<group>"; };
+		A3078C7CD88D509804AECBCD /* Pods_Somnus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Somnus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,15 +64,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19A3DD6BA7C0577471DD53F9 /* Pods_Somnus.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2012888E6ED85D0C51C59FC7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A3078C7CD88D509804AECBCD /* Pods_Somnus.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2E23151721FEC28100833590 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
+				2E23152222016E4C00833590 /* her.m4a */,
 				2E23151821FEC29400833590 /* Lalala.m4a */,
 				2E23151E22002FFE00833590 /* Body.m4a */,
 				2E23151C2200195C00833590 /* SweetbutPsycho.m4a */,
@@ -88,6 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				2EFB51C121DD249800E9D9D4 /* SomnusViewController.swift */,
+				2E23152022012F9F00833590 /* PreviousSessionPreviewViewController.swift */,
 				2E54B46321FA61E400C2C0F7 /* OnBoardingPages */,
 			);
 			path = Controllers;
@@ -130,6 +149,8 @@
 			children = (
 				2EFB51AE21DC602000E9D9D4 /* Somnus */,
 				2EFB51AD21DC602000E9D9D4 /* Products */,
+				AC45A2DCA02B38B9FBBB61D2 /* Pods */,
+				2012888E6ED85D0C51C59FC7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -153,6 +174,15 @@
 			path = Somnus;
 			sourceTree = "<group>";
 		};
+		AC45A2DCA02B38B9FBBB61D2 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				208D1A51379E47AD6DE38209 /* Pods-Somnus.debug.xcconfig */,
+				72AC58DD0988EE2C221B7CEF /* Pods-Somnus.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -160,9 +190,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2EFB51BE21DC602200E9D9D4 /* Build configuration list for PBXNativeTarget "Somnus" */;
 			buildPhases = (
+				839EB4C05063745F91EC7906 /* [CP] Check Pods Manifest.lock */,
 				2EFB51A821DC602000E9D9D4 /* Sources */,
 				2EFB51A921DC602000E9D9D4 /* Frameworks */,
 				2EFB51AA21DC602000E9D9D4 /* Resources */,
+				C82AB441D8A8465E71D454C0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -219,6 +251,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2E23152322016E4C00833590 /* her.m4a in Resources */,
 				2E23151D2200196A00833590 /* SweetbutPsycho.m4a in Resources */,
 				2E23151921FED05700833590 /* Lalala.m4a in Resources */,
 				2E54B46B21FAD49400C2C0F7 /* Launch Screen.storyboard in Resources */,
@@ -228,6 +261,45 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		839EB4C05063745F91EC7906 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Somnus-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C82AB441D8A8465E71D454C0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Somnus/Pods-Somnus-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/FDWaveformView/FDWaveformView.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FDWaveformView.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Somnus/Pods-Somnus-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2EFB51A821DC602000E9D9D4 /* Sources */ = {
@@ -243,6 +315,7 @@
 				2E54B47121FE26EB00C2C0F7 /* AudioRecorder.swift in Sources */,
 				2E54B45E21FA4E9400C2C0F7 /* WelcomePageOneViewController.swift in Sources */,
 				2EFB51CA21E588D400E9D9D4 /* PlaylistCell.swift in Sources */,
+				2E23152122012F9F00833590 /* PreviousSessionPreviewViewController.swift in Sources */,
 				2E54B46021FA4ECB00C2C0F7 /* WelcomePageTwoViewController.swift in Sources */,
 				2E54B46221FA5FCD00C2C0F7 /* WelcomePageThreeViewController.swift in Sources */,
 				2E23151521FEC1E400833590 /* AudioPlayer.swift in Sources */,
@@ -371,6 +444,7 @@
 		};
 		2EFB51BF21DC602200E9D9D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 208D1A51379E47AD6DE38209 /* Pods-Somnus.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Somnus/SupportingFiles/Somnus.entitlements;
@@ -378,10 +452,7 @@
 				DEVELOPMENT_TEAM = LW76959M9R;
 				INFOPLIST_FILE = "$(SRCROOT)/Somnus/SupportingFiles/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.chriscobar.Somnus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
@@ -391,6 +462,7 @@
 		};
 		2EFB51C021DC602200E9D9D4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 72AC58DD0988EE2C221B7CEF /* Pods-Somnus.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Somnus/SupportingFiles/Somnus.entitlements;
@@ -398,10 +470,7 @@
 				DEVELOPMENT_TEAM = LW76959M9R;
 				INFOPLIST_FILE = "$(SRCROOT)/Somnus/SupportingFiles/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.chriscobar.Somnus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;

@@ -50,9 +50,9 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
 		let audioFilename = SomnusUtils.shared.getDocumentsDirectory().appendingPathComponent("\(filename).m4a")
 		let settings = [
 			AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-			AVSampleRateKey: 44100,
-			AVNumberOfChannelsKey: 2,
-			AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+			AVSampleRateKey: 8000,
+			AVNumberOfChannelsKey: 1,
+			AVEncoderAudioQualityKey: AVAudioQuality.low.rawValue
 		]
 		do {
 			mAudioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
