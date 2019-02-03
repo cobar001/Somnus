@@ -17,13 +17,11 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Used in tandem with Speech Recognition tool to preocess voice commands.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Somnus will use this feature to enable and process voice commands.</string>
+	<string>Used to monitor sleep activity. Disclaimer, no data ever leaves your device and each recording is deleted once another Session is started.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

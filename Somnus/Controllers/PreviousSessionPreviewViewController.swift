@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Speech
 import FDWaveformView
 
 class PreviousSessionPreviewViewController: UIViewController {
@@ -94,17 +93,21 @@ class PreviousSessionPreviewViewController: UIViewController {
 			equalTo: mPreviousSessionActivityLabel.safeAreaLayoutGuide.bottomAnchor, constant: 8).isActive = true
 		mFDWaveFormView.widthAnchor.constraint(
 			equalTo: mPreviousSessionContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
-		mFDWaveFormView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+		mFDWaveFormView.heightAnchor.constraint(equalToConstant: 150).isActive = true
 		
-//		mPreviousSessionTranscriptTextView.addSubview(mActivityIndicatorView)
-//		mActivityIndicatorView.centerXAnchor.constraint(
-//			equalTo: mPreviousSessionTranscriptTextView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-//		mActivityIndicatorView.centerYAnchor.constraint(
-//			equalTo: mPreviousSessionTranscriptTextView.safeAreaLayoutGuide.centerYAnchor).isActive = true
-	}
-	
-	public func setPreviousSessionAudioURL(url: URL) {
-		mPreviousSessionAudioURL = url
+		mFDWaveFormView.addSubview(mActivityNotAvailableLabel)
+		mActivityNotAvailableLabel.centerXAnchor.constraint(
+			equalTo: mFDWaveFormView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mActivityNotAvailableLabel.centerYAnchor.constraint(
+			equalTo: mFDWaveFormView.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mActivityNotAvailableLabel.sizeToFit()
+		mActivityNotAvailableLabel.isHidden = true
+		
+		mFDWaveFormView.addSubview(mActivityIndicatorView)
+		mActivityIndicatorView.centerXAnchor.constraint(
+			equalTo: mFDWaveFormView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mActivityIndicatorView.centerYAnchor.constraint(
+			equalTo: mFDWaveFormView.safeAreaLayoutGuide.centerYAnchor).isActive = true
 	}
 	
 	public func upDateUIWithInfo() {
@@ -130,21 +133,23 @@ class PreviousSessionPreviewViewController: UIViewController {
 		let previousSessionSnoozes: Int =
 			UserDefaults.standard.integer(forKey: "PreviousSessionSnoozeCount")
 		mPreviousSessionSnoozeCountLabel.text = "Snooze Count: \(previousSessionSnoozes)"
-		// Query transcript
-		// for now, there should be only one
-		if let previousSessionURLs = SomnusUtils.shared.getFilesInDocumentsDirectory(),
-			previousSessionURLs.count == 1 {
-			// specify file url
-			let fileURL: URL = previousSessionURLs[0]
-			print("url: \(fileURL)")
-			mFDWaveFormView.audioURL = fileURL
+			// Query transcript
+			// for now, there should be only one
+		if !AudioRecorder.shared.isRecordingAuthorized() || previousSessionDuration == 0 {
+			mActivityNotAvailableLabel.isHidden = false
 		} else {
-			print("waveform failed")
+			if let previousSessionURLs = SomnusUtils.shared.getFilesInDocumentsDirectory(),
+				previousSessionURLs.count == 1 {
+				// specify file url
+				let fileURL: URL = previousSessionURLs[0]
+				print("url: \(fileURL)")
+				mFDWaveFormView.audioURL = fileURL
+			} else {
+				print("waveform failed, no file found")
+			}
 		}
 	}
 	
-	fileprivate var mPreviousSessionAudioURL: URL?
-
 	fileprivate let mPreviousSessionContainerView: UIView = {
 		let view: UIView = UIView()
 		view.backgroundColor = UIColor.clear
@@ -222,16 +227,30 @@ class PreviousSessionPreviewViewController: UIViewController {
 		label.translatesAutoresizingMaskIntoConstraints = false
 		return label
 	}()
-
+	
     fileprivate let mFDWaveFormView: FDWaveformView = {
        let fd: FDWaveformView = FDWaveformView()
         fd.doesAllowScrubbing = true
-        fd.doesAllowScroll = false
-        fd.doesAllowStretch = false
+        fd.doesAllowScroll = true
+        fd.doesAllowStretch = true
         fd.wavesColor = UIColor.blue
         fd.translatesAutoresizingMaskIntoConstraints = false
         return fd
     }()
+
+	fileprivate let mActivityNotAvailableLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.isUserInteractionEnabled = true
+		label.text = "Activity not available"
+		label.textColor = UIColor.gray
+		label.backgroundColor = UIColor.clear
+		label.textAlignment = NSTextAlignment.center
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 16)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
+	}()
 	
 	fileprivate let mActivityIndicatorView: UIActivityIndicatorView = {
 		let iv: UIActivityIndicatorView = UIActivityIndicatorView()

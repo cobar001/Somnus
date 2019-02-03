@@ -18,9 +18,16 @@ class AudioPlayer: NSObject, AVAudioPlayerDelegate {
 		print("audio player init")
 	}
 	
-	private let mAudioTrackNames: Array<String> = ["Body", "Psycho", "Her"]
+	private let mAudioTrackNames: Array<String> =
+		["Ocean Waves", "Campfire", "Forest", "Thunderstorm", "Morning Birds", "Coffee Shop", "Alarm"]
 	private let mAudioTrackFilenameDictionary: Dictionary<String, String> =
-		["Body" : "Body", "Psycho" : "SweetbutPsycho", "Her" : "her"]
+		["Ocean Waves" : "Ocean_Waves",
+		 "Campfire" : "Campfire",
+		 "Forest" : "Forest",
+		 "Thunderstorm" : "Thunderstorm",
+		 "Morning Birds" : "Birds",
+		 "Coffee Shop" : "CoffeeShop",
+		 "Alarm" : "alarm"]
 	private let mAudioSession: AVAudioSession = AVAudioSession.sharedInstance()
 	private var mAudioPlayer: AVAudioPlayer!
 	

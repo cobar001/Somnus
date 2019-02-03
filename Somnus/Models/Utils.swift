@@ -17,7 +17,7 @@ let SCREENBOUNDS: CGRect = UIScreen.main.bounds
 
 let PURPLECOLOR: UIColor = UIColor(red: 102/255, green: 51/255, blue: 153/255, alpha: 1.0)
 let ORANGECOLOR: UIColor = UIColor(red: 249/255, green: 105/255, blue: 14/255, alpha: 1.0)
-let GRAYCOLOR: UIColor = UIColor(red: 241/255, green: 241/255, blue: 241/255, alpha: 0.5)
+let GRAYCOLOR: UIColor = UIColor(red: 247/255, green: 247/255, blue: 247/255, alpha: 0.25)
 let SUNCOLOR: UIColor = UIColor(red: 238/255, green: 238/255, blue: 0, alpha: 1.0)
 let SUNRAYCOLOR: UIColor = UIColor(red: 247/255, green: 202/255, blue: 24/255, alpha: 1.0)
 

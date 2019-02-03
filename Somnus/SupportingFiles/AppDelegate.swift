@@ -21,9 +21,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Override point for customization after application launch.
 		print("did finish loading")
 		
-		// prevent screen from going to sleep
-		//UIApplication.shared.isIdleTimerDisabled = true
-		
 		mWindow = UIWindow(frame: UIScreen.main.bounds)
 		mWindow?.backgroundColor = UIColor.darkGray
 		
@@ -60,9 +57,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func applicationWillEnterForeground(_ application: UIApplication) {
 		// Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
 		print("application will enter foreground")
-//		if SomnusUtils.shared.mSomnusSessionState == .alarmWake {
-//			MediaPlayer.shared.playFromPausePlaylist()
-//		}
 	}
 
 	func applicationDidBecomeActive(_ application: UIApplication) {

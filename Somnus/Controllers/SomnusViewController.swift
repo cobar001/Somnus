@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import MediaPlayer
 
 class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	UICollectionViewDelegate, UICollectionViewDataSource,
@@ -24,16 +23,9 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 		// Quick set up views, delegates (collection view), current playlists
 		// and navigation
-//		updatePlaylists()
 		setUpNav()
 		setUpUI()
 		registerDelegates()
-		
-		// Register ViewController to receive mediaplayer playback updates
-//		NotificationCenter.default.addObserver(
-//			self, selector: #selector(updateNowPlayingInfo),
-//			name: NSNotification.Name.MPMusicPlayerControllerNowPlayingItemDidChange,
-//			object: nil)
 		
 		// Ask for notification permissions to warn when app enter background.
 		if !SomnusUtils.shared.checkNotificationCenterPermissions() {
@@ -211,15 +203,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			equalTo: mSetUpContainerView.widthAnchor).isActive = true
 		mCountdownPlaylistChosenLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
 		
-//		mSetUpContainerView.addSubview(mCountdownPlaylistChosenInfoLabel)
-//		mCountdownPlaylistChosenInfoLabel.centerXAnchor.constraint(
-//			equalTo: mSetUpContainerView.centerXAnchor).isActive = true
-//		mCountdownPlaylistChosenInfoLabel.topAnchor.constraint(
-//			equalTo: mCountdownPlaylistChosenLabel.bottomAnchor).isActive = true
-//		mCountdownPlaylistChosenInfoLabel.widthAnchor.constraint(
-//			equalTo: mSetUpContainerView.widthAnchor).isActive = true
-//		mCountdownPlaylistChosenInfoLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-		
 		// uidatepicker bugfix
 		var countdownDateComponents: DateComponents = DateComponents()
 		countdownDateComponents.hour = 0
@@ -231,17 +214,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mCountdownStr = SomnusUtils.shared.formatSeconds(
 			seconds: Double(mCountdownDatePicker.countDownDuration))
 		mCountdownTimeInterval = mCountdownDatePicker.countDownDuration
-		
-		// Alarm Label and DatePicker StackView and Gestures
-//		mSetUpContainerView.addSubview(mAlarmPlaylistChosenInfoLabel)
-//		mAlarmPlaylistChosenInfoLabel.centerXAnchor.constraint(
-//			equalTo: mSetUpContainerView.centerXAnchor).isActive = true
-//		mAlarmPlaylistChosenInfoLabel.bottomAnchor.constraint(
-//			equalTo: mSetUpContainerView.bottomAnchor).isActive = true
-//		mAlarmPlaylistChosenInfoLabel.widthAnchor.constraint(
-//			equalTo: mSetUpContainerView.widthAnchor).isActive = true
-//		mAlarmPlaylistChosenInfoLabel.heightAnchor.constraint(
-//			equalToConstant: 20).isActive = true
 		
 		mSetUpContainerView.addSubview(mAlarmPlaylistChosenLabel)
 		mAlarmPlaylistChosenLabel.centerXAnchor.constraint(
@@ -444,7 +416,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mCountdownPlaylistsCollectionView.topAnchor.constraint(
 			equalTo: mCountdownPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
 		mCountdownPlaylistsCollectionView.widthAnchor.constraint(
-			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -16).isActive = true
 		if SomnusUtils.shared.hasSmallerScreen() {
 			mCountdownPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		} else {
@@ -486,7 +458,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mAlarmPlaylistsCollectionView.topAnchor.constraint(
 			equalTo: mAlarmPlaylistExplanationLabel.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
 		mAlarmPlaylistsCollectionView.widthAnchor.constraint(
-			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -8).isActive = true
+			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, constant: -16).isActive = true
 		if SomnusUtils.shared.hasSmallerScreen() {
 			mAlarmPlaylistsCollectionView.heightAnchor.constraint(equalToConstant: 50).isActive = true
 		} else {
@@ -507,11 +479,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mMenuViewPreviousSessionButton.widthAnchor.constraint(
 			equalTo: mMenuContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
 		mMenuViewPreviousSessionButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
-//		mMenuViewPreviousSessionButton.isEnabled = false
-//		if let docContent = SomnusUtils.shared.getFilesInDocumentsDirectory(), docContent.count > 0 {
-//			mMenuViewPreviousSessionButton.isEnabled = true
-//		}
-
 	}
 	
 	// Set system volume to kCountdownStartVolume and
@@ -519,13 +486,16 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	// kCountdownStartVolume/kCountdownEndVolume delta
 	fileprivate func initializeCountdownVolume() {
 		print("countdown volume: \(mCountdownVolume)")
-		AudioPlayer.shared.setVolume(new_vol: mCountdownVolume)
+		AudioPlayer.shared.setVolume(new_vol: 0.0)
+		AudioPlayer.shared.fadeToVolumeOverDuration(
+			new_vol: mCountdownVolume, duration: 5.0)
 	}
 	
 	fileprivate func initializeAlarmVolume() {
 		print("alarm wake volume: \(mAlarmWakeVolume)")
+		AudioPlayer.shared.setVolume(new_vol: 0.0)
 		AudioPlayer.shared.fadeToVolumeOverDuration(
-			new_vol: mAlarmWakeVolume, duration: 90.0)
+			new_vol: mAlarmWakeVolume, duration: 60.0)
 	}
 	
 	/***
@@ -534,12 +504,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	// Set both Countdown and Alarm Playlists count
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//		let playlistsCount: Int = MediaPlayer.shared.mMPMediaPlaylists.count
-//		if (playlistsCount == 0) {
-//			collectionView.setEmptyMessage("No playlists found")
-//		} else {
-//			collectionView.restore()
-//		}
 		return AudioPlayer.shared.getTrackNames().count
 	}
 	
@@ -548,8 +512,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 						cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let playlistCell: PlaylistCell = collectionView.dequeueReusableCell(
 			withReuseIdentifier: "PlaylistCellID", for: indexPath) as! PlaylistCell
-//		playlistCell.mPlaylistLabel.text =
-//			MediaPlayer.shared.mMPMediaPlaylists[indexPath.item].name
 		playlistCell.mPlaylistLabel.text =
 			AudioPlayer.shared.getTrackNames()[indexPath.item]
 		return playlistCell
@@ -559,35 +521,16 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	// collection views and differentiating based on UICollectionView
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		let index: Int = indexPath.item
-//		let selectedPlaylist: MPMediaPlaylist = MediaPlayer.shared.mMPMediaPlaylists[index]
 		let selectedTrackName: String = AudioPlayer.shared.getTrackNames()[index]
 		if collectionView == mCountdownPlaylistsCollectionView {
-//			mCountdownPlaylist = selectedPlaylist
 			mCountdownAudioFilename = AudioPlayer.shared.getTrackFilename(name: selectedTrackName)
-//			mCountdownPlaylistChosenLabel.text = "Playlist: \(selectedPlaylist.name!)"
 			mCountdownPlaylistChosenLabel.text = "Track: \(selectedTrackName)"
-//			var playlistPlaybackTime: Double = 0.0
-//			for mediaItem in selectedPlaylist.items {
-//				playlistPlaybackTime += Double(mediaItem.playbackDuration)
-//			}
-//			mCountdownPlaylistChosenInfoLabel.text =
-//				"Playlist duration: \(SomnusUtils.shared.formatSeconds(seconds: playlistPlaybackTime))"
 			mCountdownPlaylistChosenInfoLabel.text = "Playlist duration: tbd"
-//			print("countdown collectionview \(String(describing: mCountdownPlaylist?.name!))")
 			print("countdown collectionview \(selectedTrackName)")
 		} else {
-//			mAlarmPlaylist = selectedPlaylist
 			mAlarmAudioFilename = AudioPlayer.shared.getTrackFilename(name: selectedTrackName)
-//			mAlarmPlaylistChosenLabel.text = "Playlist: \(selectedPlaylist.name!)"
 			mAlarmPlaylistChosenLabel.text = "Track: \(selectedTrackName)"
-//			var playlistPlaybackTime: Double = 0.0
-//			for mediaItem in selectedPlaylist.items {
-//				playlistPlaybackTime += Double(mediaItem.playbackDuration)
-//			}
-//			mAlarmPlaylistChosenInfoLabel.text =
-//			"Playlist duration: \(SomnusUtils.shared.formatSeconds(seconds: playlistPlaybackTime))"
 			mAlarmPlaylistChosenInfoLabel.text = "Playlist duration: tbd"
-//			print("alarm collectionview \(String(describing: mAlarmPlaylist?.name!))")
 			print("alarm collectionview \(selectedTrackName)")
 		}
 		
@@ -803,17 +746,12 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		print("startSomnusSession")
 		print("\(mCountdownStr)")
 		print("\(mAlarmStr)")
-		print("media player granted: \(MediaPlayer.shared.checkMediaLibraryPermissions())")
 		print("notifications granted: \(SomnusUtils.shared.checkNotificationCenterPermissions())")
 		// Make sure timers are cleared
 		mCountdownTimer?.invalidate()
 		mAlarmTimer?.invalidate()
 		mAlarmWakeTimer?.invalidate()
 		mSnoozeTimer?.invalidate()
-		
-		// Remove current audio files in documents directory
-		SomnusUtils.shared.removeFilesFromDirectory(
-			url: SomnusUtils.shared.getDocumentsDirectory())
 		
 		// Initialize session values
 		// Reset Alarm Span Time Interval
@@ -839,47 +777,26 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		// Save date for data preview
 		mNowDate = Date()
 
-		// Ensure playlist is selected/valid, otherwise present alert
-//		if mCountdownPlaylist == nil {
-//			presentPlaylistError(errorType: PlaylistError.CountdownPlaylistNotChosen)
-//			return
-//		}
-//		if mCountdownPlaylist!.count < 1 {
-//			presentPlaylistError(errorType: PlaylistError.EmptyCountdownPlaylist)
-//			return
-//		}
+		// Ensure audio file is selected/valid, otherwise present alert
 		if mCountdownAudioFilename == nil {
 			presentPlaylistError(errorType: PlaylistError.CountdownPlaylistNotChosen)
 			return
 		}
-//		if mAlarmPlaylist == nil {
-//			presentPlaylistError(errorType: PlaylistError.AlarmPlaylistNotChosen)
-//			return
-//		}
-//		if mAlarmPlaylist!.count < 1 {
-//			presentPlaylistError(errorType: PlaylistError.EmptyAlarmPlaylist)
-//			return
-//		}
 		if mAlarmAudioFilename == nil {
 			presentPlaylistError(errorType: PlaylistError.AlarmPlaylistNotChosen)
 			return
 		}
-		// Request permission to
-//		if !SpeechRecognizer.shared.checkSpeechRecognitionAuthorization() {
-//			SpeechRecognizer.shared.requestSpeechRecognitionAuthorization()
-//		}
-//		if !SpeechRecognizer.shared.checkRecordingAuthorization() {
-//			SpeechRecognizer.shared.requestRecordingAuthorization()
-//		}
 		// Format countdown and alarm values to present in Somnus Session
 		mCountdownLabel.text = SomnusUtils.shared.formatSeconds(
 			seconds: Double(countdownTimeInterval))
 		mAlarmLabel.text = SomnusUtils.shared.formatDate(
 			date: alarmDate, calendar: alarmCal)
-		// Start the selected playlist with MPMediaPlayer
+		// Start the selected track with audioplayer
 		mDispatchBackgroundQueue.async {
+			// Remove current audio files in documents directory
+			SomnusUtils.shared.removeFilesFromDirectory(
+				url: SomnusUtils.shared.getDocumentsDirectory())
 			// Start Audio Recording for background execution
-			AudioRecorder.shared.requestRecordAuthorization()
 			AudioRecorder.shared.initRecorder(filename: "session")
 			AudioRecorder.shared.startRecording(timeOffset: nil)
 			// Start Audio Player
@@ -1095,6 +1012,9 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		// when menu is closed, it's left constraint should be of
 		// value that allows it to be completely hidden to the left
 		// of the screen - which is negative value of it's width.
+		if (!AudioRecorder.shared.isRecordingAuthorized()) {
+			AudioRecorder.shared.requestRecordAuthorization()
+		}
 		mMenuLeftConstraint.constant = -mMenuWidthConstraint.constant
 		// animate closing of the menu - including opacity value
 		UIView.animate(withDuration: 0.3, animations: {
@@ -1162,7 +1082,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		// Set correct state
 		SomnusUtils.shared.mSomnusSessionState = .alarmWake
 		
-		// Set system volum to kCountdownStartVolume
+		// Set system volum to alarm volume
 		initializeAlarmVolume()
 		
 		// Start Audio Player
@@ -1174,50 +1094,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 											   selector: #selector(self.updateAlarmWake),
 											   userInfo: nil, repeats: true)
 		print("ALARM ALARM")
-	}
-	
-	// Target of MPMedia now playing notification. Handle now playing UI updates.
-	@objc func updateNowPlayingInfo() {
-		// check media player for validity
-		guard let nowPlayingItem: MPMediaItem =
-			MediaPlayer.shared.kMPMediaPlayer.nowPlayingItem else {
-			print("now playing item nil")
-			return
-		}
-		// get proper sized album artwork if valid
-		let nowPlayingArtworkSize: CGSize = CGSize(
-			width: mNowPlayingAlbumImage.bounds.width, height: mNowPlayingAlbumImage.bounds.height)
-		guard let nowPlayingArtworkImage: UIImage =
-			nowPlayingItem.artwork?.image(at: nowPlayingArtworkSize) else {
-			print("error getting track artwork")
-			return
-		}
-		print("now playing changed: \(String(describing: nowPlayingItem.title))")
-		mNowPlayingAlbumImage.image = nowPlayingArtworkImage
-		// get track title and artist name
-		guard let trackName: String = nowPlayingItem.title,
-			let trackArtist: String = nowPlayingItem.artist else {
-			print("error getting track and artist name")
-			return
-		}
-		mNowPlayingTrackLabel.text = trackName
-		mNowPlayingArtistLabel.text = trackArtist
-	}
-	
-	// Load Music playlists into container to populate collection views
-	// and subsequently play
-	fileprivate func updatePlaylists() {
-		MediaPlayer.shared.mMPMediaPlaylists.removeAll()
-		let myPlaylistQuery = MPMediaQuery.playlists()
-		guard let playlists = myPlaylistQuery.collections else {
-			return
-		}
-		for playlist in playlists {
-			guard let p = playlist as? MPMediaPlaylist else {
-				return
-			}
-			MediaPlayer.shared.mMPMediaPlaylists.append(p)
-		}
 	}
 	
 	// UI Update Targets
@@ -1235,6 +1111,10 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			AudioPlayer.shared.stopAudioPlayer()
 			return
 		}
+		if mCountdownTimeInterval == 30.0 {
+			AudioPlayer.shared.fadeToVolumeOverDuration(
+				new_vol: 0.0, duration: 30.0)
+		}
 		// Otherwise continue to decrement interval,
 		// and update UI.
 		mCountdownTimeInterval! -= 1.0
@@ -1244,17 +1124,14 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		print("countdown interval: \(mCountdownTimeInterval!)")
 		print("mic recording: \(AudioRecorder.shared.audioRecorderIsrecording())")
 		print("audio playing: \(AudioPlayer.shared.audioPlayerIsPlaying())")
-		print("media player state: \(MediaPlayer.shared.kMPMediaPlayer.playbackState.rawValue)")
 		print("somnus session state: \(SomnusUtils.shared.mSomnusSessionState)")
-		print("recognizing speech: \(SpeechRecognizer.shared.speechRecognitionIsRunning())")
 		print("audio player volume: \(AudioPlayer.shared.getVolume())")
 	}
 	
 	@objc func updateAlarmWake() {
 		// Stop Somnus session if end of alarm time interval
 		// reached, also stop on voice command result.
-		if mAlarmWakeTimeInterval == 0.0 ||
-			SpeechRecognizer.shared.getSpeechRecognitionResult() == .stop {
+		if mAlarmWakeTimeInterval == 0.0 {
 			print("alarm done")
 			stopSomnusSession()
 			return
@@ -1262,9 +1139,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		// Continue to decrement interval
 		mAlarmWakeTimeInterval -= 1.0
 		print("alarm interval: \(mAlarmWakeTimeInterval)")
-		print("recognizing speech: \(SpeechRecognizer.shared.speechRecognitionIsRunning())")
 		print("mic recording: \(AudioRecorder.shared.audioRecorderIsrecording())")
-		print("media player state: \(MediaPlayer.shared.kMPMediaPlayer.playbackState.rawValue)")
 		print("somnus session state: \(SomnusUtils.shared.mSomnusSessionState)")
 		print("audio player volume: \(AudioPlayer.shared.getVolume())")
 		print("audio playing: \(AudioPlayer.shared.audioPlayerIsPlaying())")
@@ -1296,13 +1171,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		print("audio player volume: \(AudioPlayer.shared.getVolume())")
 	}
 	
-	// Query playlists from Music Library and update UI
-	@objc func refreshPlaylists() {
-		updatePlaylists()
-		mCountdownPlaylistsCollectionView.reloadData()
-		mAlarmPlaylistsCollectionView.reloadData()
-	}
-	
 	@objc func viewPreviousSessionData() {
 		print("viewPreviousSessionData")
 		let previousSessionPreviewVC: PreviousSessionPreviewViewController =
@@ -1317,23 +1185,11 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	public func presentPlaylistError(errorType: PlaylistError) {
 		var alert: UIAlertController?
 		switch errorType {
-//		case PlaylistError.EmptyCountdownPlaylist:
-//			let playlistName = mCountdownPlaylist?.name ?? ""
-//			alert = UIAlertController(
-//				title: "",
-//				message: "Sleep playback playlist \(playlistName) contains no songs",
-//				preferredStyle: UIAlertController.Style.alert)
 		case PlaylistError.CountdownPlaylistNotChosen:
 			alert = UIAlertController(
 				title: "",
 				message: "Sleep track not chosen",
 				preferredStyle: UIAlertController.Style.alert)
-//		case PlaylistError.EmptyAlarmPlaylist:
-//			let playlistName = mAlarmPlaylist?.name ?? ""
-//			alert = UIAlertController(
-//				title: "",
-//				message: "Alarm playlist \(playlistName) contains no songs",
-//				preferredStyle: UIAlertController.Style.alert)
 		case PlaylistError.AlarmPlaylistNotChosen:
 			alert = UIAlertController(
 				title: "",
@@ -1381,16 +1237,14 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	fileprivate var mSnoozeCount: Int = 0
 	fileprivate var mNowDate: Date = Date()
 	
-	fileprivate var mCountdownVolume: Float = 0.30
-//	fileprivate var mCountdownPlaylist: MPMediaPlaylist?
+	fileprivate var mCountdownVolume: Float = 0.50
 	fileprivate var mCountdownAudioFilename: String?
 	fileprivate var mCountdownStr: String = "00:00:00"
 	fileprivate var mCountdownTimeInterval: TimeInterval?
 	fileprivate var mCountdownTimer: Timer?
 
 	
-	fileprivate var mAlarmWakeVolume: Float = 0.60
-//	fileprivate var mAlarmPlaylist: MPMediaPlaylist?
+	fileprivate var mAlarmWakeVolume: Float = 0.80
 	fileprivate var mAlarmAudioFilename: String?
 	fileprivate var mAlarmStr: String = "00:00 AM"
 	fileprivate var mAlarmTimer: Timer?
@@ -1521,7 +1375,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		slider.isContinuous = true
 		slider.minimumValue = 0.0
 		slider.maximumValue = 1.0
-		slider.setValue(0.30, animated: false)
+		slider.setValue(0.5, animated: false)
 		slider.addTarget(self,
 						 action: #selector(sleepSliderDidChange(sender:)),
 						 for: UIControl.Event.valueChanged)
@@ -1547,7 +1401,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		slider.isContinuous = true
 		slider.minimumValue = 0.0
 		slider.maximumValue = 1.0
-		slider.setValue(0.6, animated: false)
+		slider.setValue(0.85, animated: false)
 		slider.addTarget(self,
 						 action: #selector(alarmSliderDidChange(sender:)),
 						 for: UIControl.Event.valueChanged)
@@ -1557,9 +1411,6 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 	
 	fileprivate let mMenuViewPreviousSessionButton: UIButton = {
 		let button: UIButton = UIButton(type: UIButton.ButtonType.system)
-//		let image: UIImage = (UIImage(named: "refresh")?.withRenderingMode(
-//			UIImage.RenderingMode.alwaysTemplate))!
-//		button.setImage(image, for: UIControl.State.normal)
 		button.setTitle("previous session", for: UIControl.State.normal)
 		button.titleLabel?.font = UIFont(name: FONTNAME, size: 18)
 		button.addTarget(self, action: #selector(viewPreviousSessionData),
@@ -1658,7 +1509,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			layout.sectionInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
 		}
 		collectionView.showsHorizontalScrollIndicator = false
-		collectionView.backgroundColor = GRAYCOLOR
+		collectionView.backgroundColor = UIColor.clear
 		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
 		collectionView.translatesAutoresizingMaskIntoConstraints = false
 		return collectionView
@@ -1741,7 +1592,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 			layout.sectionInset = UIEdgeInsets(top: 15, left: 0, bottom: 15, right: 0)
 		}
 		collectionView.showsHorizontalScrollIndicator = false
-		collectionView.backgroundColor = GRAYCOLOR
+		collectionView.backgroundColor = UIColor.clear
 		collectionView.register(PlaylistCell.self, forCellWithReuseIdentifier: "PlaylistCellID")
 		collectionView.translatesAutoresizingMaskIntoConstraints = false
 		return collectionView

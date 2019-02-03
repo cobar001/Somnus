@@ -40,6 +40,13 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
 		}
 	}
 	
+	public func isRecordingAuthorized() -> Bool {
+		if mRecordingSession.recordPermission != .granted {
+			return false
+		}
+		return true
+	}
+	
 	public func initRecorder(filename: String) {
 		do {
 			try mRecordingSession.setCategory(.playAndRecord, mode: .default)
