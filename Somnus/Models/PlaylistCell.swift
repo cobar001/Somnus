@@ -22,12 +22,12 @@ class PlaylistCell: UICollectionViewCell {
 	override var isSelected: Bool {
 		didSet {
 			if self.isSelected {
-				self.mPlaylistLabel.font = UIFont(name: FONTNAMEBOLD, size: 16)
-				self.mPlaylistLabel.layer.borderColor = UIColor.black.cgColor
+				self.mPlaylistLabel.backgroundColor = UIColor.black
+				self.mPlaylistLabel.textColor = UIColor.white
 			}
 			else {
-				self.mPlaylistLabel.font = UIFont(name: FONTNAME, size: 18)
-				self.mPlaylistLabel.layer.borderColor = UIColor.clear.cgColor
+				self.mPlaylistLabel.backgroundColor = UIColor.clear
+				self.mPlaylistLabel.textColor = UIColor.black
 			}
 		}
 	}
@@ -52,10 +52,6 @@ class PlaylistCell: UICollectionViewCell {
 		label.textAlignment = NSTextAlignment.center
 		label.numberOfLines = 1
 		label.lineBreakMode = NSLineBreakMode.byWordWrapping
-		label.clipsToBounds = true
-		label.layer.borderWidth = 2
-		label.layer.borderColor = UIColor.clear.cgColor
-		label.layer.cornerRadius = 2
 		label.font = UIFont(name: FONTNAME, size: 18)
 		label.translatesAutoresizingMaskIntoConstraints = false
 		return label
