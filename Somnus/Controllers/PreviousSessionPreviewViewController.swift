@@ -103,11 +103,13 @@ class PreviousSessionPreviewViewController: UIViewController {
 		mActivityNotAvailableLabel.sizeToFit()
 		mActivityNotAvailableLabel.isHidden = true
 		
-		mFDWaveFormView.addSubview(mActivityIndicatorView)
-		mActivityIndicatorView.centerXAnchor.constraint(
-			equalTo: mFDWaveFormView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mActivityIndicatorView.centerYAnchor.constraint(
-			equalTo: mFDWaveFormView.safeAreaLayoutGuide.centerYAnchor).isActive = true
+		mPreviousSessionContainerView.addSubview(mLoadingLabel)
+		mLoadingLabel.centerXAnchor.constraint(
+			equalTo: mPreviousSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mLoadingLabel.topAnchor.constraint(
+			equalTo: mFDWaveFormView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		mLoadingLabel.widthAnchor.constraint(equalToConstant: 250).isActive = true
+		mLoadingLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
 	}
 	
 	public func upDateUIWithInfo() {
@@ -137,6 +139,7 @@ class PreviousSessionPreviewViewController: UIViewController {
 			// for now, there should be only one
 		if !AudioRecorder.shared.isRecordingAuthorized() || previousSessionDuration == 0 {
 			mActivityNotAvailableLabel.isHidden = false
+			mLoadingLabel.isHidden = true
 		} else {
 			if let previousSessionURLs = SomnusUtils.shared.getFilesInDocumentsDirectory(),
 				previousSessionURLs.count == 1 {
@@ -252,13 +255,18 @@ class PreviousSessionPreviewViewController: UIViewController {
 		return label
 	}()
 	
-	fileprivate let mActivityIndicatorView: UIActivityIndicatorView = {
-		let iv: UIActivityIndicatorView = UIActivityIndicatorView()
-		iv.style = .whiteLarge
-		iv.color = UIColor.darkGray
-		iv.hidesWhenStopped = true
-		iv.translatesAutoresizingMaskIntoConstraints = false
-		return iv
+	fileprivate let mLoadingLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.isUserInteractionEnabled = true
+		label.text = "Note: it may take a few seconds to parse longer sessions."
+		label.textColor = UIColor.gray
+		label.backgroundColor = UIColor.clear
+		label.textAlignment = NSTextAlignment.center
+		label.numberOfLines = 2
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 16)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
 	}()
 	
 }
