@@ -268,36 +268,51 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mSomnusSessionContainerView.alpha = 0.0
 
 		// Somnus Session Countdown, Now Playing, and Alarm Labels
-		mSomnusSessionContainerView.addSubview(mNowPlayingContainerView)
-		mNowPlayingContainerView.centerXAnchor.constraint(
+		mSomnusSessionContainerView.addSubview(mRecordingImageView)
+		mRecordingImageView.centerXAnchor.constraint(
 			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mNowPlayingContainerView.centerYAnchor.constraint(
+		mRecordingImageView.centerYAnchor.constraint(
 			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerYAnchor).isActive = true
-		mNowPlayingContainerView.widthAnchor.constraint(
-			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
-		mNowPlayingContainerView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+		mRecordingImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
+		mRecordingImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
 		
-		mNowPlayingContainerView.addSubview(mNowPlayingAlbumImage)
-		mNowPlayingAlbumImage.centerXAnchor.constraint(
-			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mNowPlayingAlbumImage.topAnchor.constraint(
-			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
-		mNowPlayingAlbumImage.heightAnchor.constraint(
-			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.63).isActive = true
-		mNowPlayingAlbumImage.widthAnchor.constraint(
-			equalTo: mNowPlayingAlbumImage.safeAreaLayoutGuide.heightAnchor).isActive = true
+		mSomnusSessionContainerView.addSubview(mRecordingLabel)
+		mRecordingLabel.centerXAnchor.constraint(
+			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+		mRecordingLabel.topAnchor.constraint(
+			equalTo: mRecordingImageView.safeAreaLayoutGuide.bottomAnchor, constant: 8).isActive = true
+		mRecordingLabel.sizeToFit()
 		
-		mNowPlayingContainerView.addSubview(mNowPlayingTrackArtistStackView)
-		mNowPlayingTrackArtistStackView.centerXAnchor.constraint(
-			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
-		mNowPlayingTrackArtistStackView.bottomAnchor.constraint(
-			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
-		mNowPlayingTrackArtistStackView.widthAnchor.constraint(
-			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
-		mNowPlayingTrackArtistStackView.heightAnchor.constraint(
-			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.33).isActive = true
-		mNowPlayingTrackArtistStackView.addArrangedSubview(mNowPlayingTrackLabel)
-		mNowPlayingTrackArtistStackView.addArrangedSubview(mNowPlayingArtistLabel)
+//		mSomnusSessionContainerView.addSubview(mNowPlayingContainerView)
+//		mNowPlayingContainerView.centerXAnchor.constraint(
+//			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+//		mNowPlayingContainerView.centerYAnchor.constraint(
+//			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.centerYAnchor).isActive = true
+//		mNowPlayingContainerView.widthAnchor.constraint(
+//			equalTo: mSomnusSessionContainerView.safeAreaLayoutGuide.widthAnchor, multiplier: 0.8).isActive = true
+//		mNowPlayingContainerView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+//
+//		mNowPlayingContainerView.addSubview(mNowPlayingAlbumImage)
+//		mNowPlayingAlbumImage.centerXAnchor.constraint(
+//			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+//		mNowPlayingAlbumImage.topAnchor.constraint(
+//			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.topAnchor).isActive = true
+//		mNowPlayingAlbumImage.heightAnchor.constraint(
+//			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.63).isActive = true
+//		mNowPlayingAlbumImage.widthAnchor.constraint(
+//			equalTo: mNowPlayingAlbumImage.safeAreaLayoutGuide.heightAnchor).isActive = true
+//
+//		mNowPlayingContainerView.addSubview(mNowPlayingTrackArtistStackView)
+//		mNowPlayingTrackArtistStackView.centerXAnchor.constraint(
+//			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.centerXAnchor).isActive = true
+//		mNowPlayingTrackArtistStackView.bottomAnchor.constraint(
+//			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+//		mNowPlayingTrackArtistStackView.widthAnchor.constraint(
+//			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.widthAnchor).isActive = true
+//		mNowPlayingTrackArtistStackView.heightAnchor.constraint(
+//			equalTo: mNowPlayingContainerView.safeAreaLayoutGuide.heightAnchor, multiplier:0.33).isActive = true
+//		mNowPlayingTrackArtistStackView.addArrangedSubview(mNowPlayingTrackLabel)
+//		mNowPlayingTrackArtistStackView.addArrangedSubview(mNowPlayingArtistLabel)
 		
 		// Somnus Session Countdown Label
 		mSomnusSessionContainerView.addSubview(mCountdownLabel)
@@ -752,7 +767,10 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		mAlarmTimer?.invalidate()
 		mAlarmWakeTimer?.invalidate()
 		mSnoozeTimer?.invalidate()
-		
+		if !AudioRecorder.shared.isRecordingAuthorized() {
+			mRecordingImageView.isHidden = true
+			mRecordingLabel.isHidden = true
+		}
 		// Initialize session values
 		// Reset Alarm Span Time Interval
 		mAlarmWakeTimeInterval = 600.0
@@ -1288,7 +1306,7 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 		return view
 	}()
 	
-	 fileprivate let mMoonImageView: UIImageView = {
+	fileprivate let mMoonImageView: UIImageView = {
 		let view: UIImageView = UIImageView(image: UIImage(named: "moon"))
 		view.translatesAutoresizingMaskIntoConstraints = false
 		return view
@@ -1757,6 +1775,29 @@ class SomnusViewController: UIViewController, UIGestureRecognizerDelegate,
 						 for: UIControl.Event.touchUpInside)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		return button
+	}()
+	
+	fileprivate let mRecordingImageView: UIImageView = {
+		let view: UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+		let micImage = UIImage(named: "microphone");
+		let tintedImage = micImage?.withRenderingMode(UIImage.RenderingMode.alwaysTemplate)
+		view.image = tintedImage
+		view.tintColor = UIColor.white
+		view.translatesAutoresizingMaskIntoConstraints = false
+		return view
+	}()
+	
+	fileprivate let mRecordingLabel: UILabel = {
+		let label: UILabel = UILabel()
+		label.text = "Recording ..."
+		label.textColor = UIColor.white
+		label.backgroundColor = UIColor.clear
+		label.textAlignment = NSTextAlignment.center
+		label.numberOfLines = 1
+		label.lineBreakMode = NSLineBreakMode.byWordWrapping
+		label.font = UIFont(name: FONTNAME, size: 12)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		return label
 	}()
 	
 	fileprivate var mCloudOneImageView: UIImageView!
